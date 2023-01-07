@@ -39,7 +39,6 @@
   <Import Project="MDK/MDK.options.props" />
   <Import Project="MDK/MDK.paths.props" Condition="exists('MDK/MDK.paths.props')" />
   <ItemGroup>
-    <Compile Include="SamsAutopilotManager2.cs" />
     <Compile Include="Guidance.cs" />
     <Compile Include="Horizont.cs" />
     <Compile Include="Leader.cs" />
