@@ -38,7 +38,7 @@ namespace IngameScript
             private static long entityId;
             private static bool matched;
             private static string trim;
-            public static bool Sanitize(ref IMyTerminalBlock block, ref BlockProfile Helper)
+            public static bool Sanitize(ref IMyTerminalBlock block, ref BlockProfile blockProfile)
             {
                 lines = block.CustomData.Split(lineSeparator);
                 build = "";
@@ -60,7 +60,7 @@ namespace IngameScript
                         {
                             if (match.Groups[3].Value != "")
                             {
-                                attributeCap = Helper.Capitalize(match.Groups[1].Value);
+                                attributeCap = blockProfile.Capitalize(match.Groups[1].Value);
                                 if (attributeCap != "")
                                 {
                                     value = match.Groups[3].Value;
@@ -72,7 +72,7 @@ namespace IngameScript
                             else
                             {
                                 tagUpper = match.Groups[1].Value.ToUpper();
-                                if (Helper.exclusiveTags.Contains(tagUpper))
+                                if (blockProfile.exclusiveTags.Contains(tagUpper))
                                 {
                                     if (exclusiveFound)
                                     {
@@ -81,7 +81,7 @@ namespace IngameScript
                                     }
                                     exclusiveFound = true;
                                 }
-                                else if (!Helper.tags.Contains(tagUpper))
+                                else if (!blockProfile.tags.Contains(tagUpper))
                                 {
                                     build += trim + "\n";
                                     continue;
