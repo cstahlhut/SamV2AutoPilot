@@ -424,11 +424,11 @@ namespace IngameScript
                     intergridCommunicationData = cmdListener.AcceptMessage();
                     try
                     {
-                        Commander.ProcessCmd(this, (string)intergridCommunicationData.Data);
+                        Autopilot.ProcessCmd(this, (string)intergridCommunicationData.Data);
                     }
                     catch (Exception exception)
                     {
-                        Logger.Err("Antenna Commander.ProcessCmd exception: " + exception.Message);
+                        Logger.Err("Antenna Autopilot.ProcessCmd exception: " + exception.Message);
                     }
                 }
             }
@@ -520,11 +520,11 @@ namespace IngameScript
             }
             try
             {
-                Commander.CommanderTick();
+                Autopilot.AutopilotTick();
             }
             catch (Exception exception)
             {
-                Logger.Err("Update100 Commander.Tick exception: " + exception.Message);
+                Logger.Err("Update100 Autopilot.Tick exception: " + exception.Message);
             }
             try
             {

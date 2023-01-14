@@ -357,7 +357,7 @@ namespace IngameScript
                 {
                     if (Double.TryParse(speed, out wait))
                     {
-                        Commander.waitTime = TimeSpan.FromSeconds(wait).Ticks;
+                        Autopilot.waitTime = TimeSpan.FromSeconds(wait).Ticks;
                     }
                 }
                 gravity = Block.HasProperty(terminalBlock.EntityId, "IGNOREGRAVITY");
@@ -368,16 +368,16 @@ namespace IngameScript
                 }
                 if (Block.HasProperty(terminalBlock.EntityId, "LIST"))
                 {
-                    Commander.mode = Commander.Mode.LIST;
+                    Autopilot.mode = Autopilot.Mode.LIST;
                 }
                 else if (Block.HasProperty(terminalBlock.EntityId, "LOOP"))
                 {
-                    Commander.mode = Commander.Mode.LOOP;
+                    Autopilot.mode = Autopilot.Mode.LOOP;
                 }
                 else
                 {
-                    Commander.mode = Commander.Mode.SINGLE;
-                    Commander.active = false;
+                    Autopilot.mode = Autopilot.Mode.SINGLE;
+                    Autopilot.active = false;
                 }
             }
 

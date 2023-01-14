@@ -50,7 +50,7 @@ namespace IngameScript
                         {
                             dock.Clear();
                             Logger.Info("Hop successful!");
-                            Commander.PilotDone();
+                            Autopilot.PilotDone();
                             running = false;
                             return;
                         }
@@ -60,7 +60,7 @@ namespace IngameScript
                     }
                     Logger.Info("Navigation successful!");
                     Signal.Send(Signal.SignalType.NAVIGATION);
-                    Commander.PilotDone();
+                    Autopilot.PilotDone();
                     ConnectorControl.AttemptConnect();
                     running = false;
                     return;
@@ -83,7 +83,11 @@ namespace IngameScript
                 }
                 Situation.RefreshParameters();
                 connectorToCenter = Situation.position - connector.GetPosition();
-                if (Math.Abs(Vector3D.Dot(dock[0].posAndOrientation.forward, Situation.gravityUpVector)) < 0.5f)
+
+                //if (Math.Abs(Vector3D.Dot(dock[0].posAndOrientation.forward, Situation.gravityUpVector)) < 0.5f)
+                // ** SCA Space Dock Fix **
+                if (Situation.gravityUpVector != Vector3D.Zero 
+                    && Math.Abs(Vector3D.Dot(dock[0].posAndOrientation.forward, Situation.gravityUpVector)) < 0.5f)
                 {
                     up = Situation.gravityUpVector;
                     referenceUp = connector.WorldMatrix.GetDirectionVector(connector.WorldMatrix.GetClosestDirection(up));
@@ -141,11 +145,13 @@ namespace IngameScript
                     }
                     Navigation.AddWaypoint(newPos, Vector3D.Zero, Vector3D.Zero, MAX_SPEED, wpType);
                 }
-                if (Situation.linearVelocity.Length() >= 2.0f)
+                
+                disconnectDock = ConnectorControl.DisconnectAndTaxiData();
+                if (disconnectDock == null && Situation.linearVelocity.Length() >= 2.0f) // ** SCA Bug Fix **
                 {
                     return;
                 }
-                disconnectDock = ConnectorControl.DisconnectAndTaxiData();
+                
                 direction = Vector3D.Normalize(newPos - Situation.position);
                 balancedDirection = Vector3D.ProjectOnPlane(ref direction, ref Situation.gravityUpVector);
                 if (disconnectDock == null)
@@ -188,7 +194,7 @@ namespace IngameScript
                 Pilot.dock.Add(dock);
                 SetEndPosisitionAndOrietation(dock);
                 running = true;
-                Commander.Activate(dock);
+                Autopilot.Activate(dock);
                 Signal.Send(Signal.SignalType.START);
             }
 
@@ -214,7 +220,7 @@ namespace IngameScript
                 Logger.Info("Navigating to follower coordinates");
                 Navigation.AddWaypoint(waypoint);
                 running = true;
-                Commander.Activate();
+                Autopilot.Activate();
             }
 
             public static void Stop()
@@ -222,7 +228,7 @@ namespace IngameScript
                 Navigation.Stop();
                 dock.Clear();
                 running = false;
-                Commander.Deactivate();
+                Autopilot.Deactivate();
             }
 
             public static void Toggle()
