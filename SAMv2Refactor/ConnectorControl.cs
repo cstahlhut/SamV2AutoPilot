@@ -135,8 +135,9 @@ namespace IngameScript
             private static Dock dock;
             public static Dock DisconnectAndTaxiData()
             {
-                connectors = ListOfConnectors();
                 retractDock = null;
+                connectors = ListOfConnectors();
+                
                 foreach (IMyShipConnector connector in connectors)
                 {
                     if (connector.Status == MyShipConnectorStatus.Connected)

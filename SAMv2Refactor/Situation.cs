@@ -32,7 +32,15 @@ namespace IngameScript
             public static bool planetDetected;
             public static Vector3D planetCenter = new Vector3D();
             public static bool inGravity;
+
+            // ** SCA START **
+            public static bool allowEscapeNoseUp;
+            public static double seaElevationVelocity = 0;
             public static double distanceToGround;
+            public static bool turnNoseUp; //true when in gravity but nose would be up
+            public static float noseDownElevation = ESCAPE_NOSE_UP_ELEVATION;
+            // ** SCA END **
+
             public static double radius;
             public static float mass;
             public static Vector3D gravityUpVector;
@@ -63,7 +71,7 @@ namespace IngameScript
                 return maxThrust.Where(kvp => kvp.Value != 0 && kvp.Key != remoteControl).Min(kvp => kvp.Value);
             }
 
-            public static void RefreshParameters()
+            public static void RefreshSituationbParameters()
             {
                 foreach (Base6Directions.Direction direction in maxThrust.Keys.ToList())
                 {
@@ -78,9 +86,12 @@ namespace IngameScript
                     }
                     maxThrust[thruster.Orientation.Forward] += thruster.MaxEffectiveThrust;
                 }
-                gridForwardVect = RemoteControl.block.CubeGrid.WorldMatrix.GetDirectionVector(Base6Directions.Direction.Forward);
-                gridUpVect = RemoteControl.block.CubeGrid.WorldMatrix.GetDirectionVector(Base6Directions.Direction.Up);
-                gridLeftVect = RemoteControl.block.CubeGrid.WorldMatrix.GetDirectionVector(Base6Directions.Direction.Left);
+                gridForwardVect =
+                    RemoteControl.block.CubeGrid.WorldMatrix.GetDirectionVector(Base6Directions.Direction.Forward);
+                gridUpVect =
+                    RemoteControl.block.CubeGrid.WorldMatrix.GetDirectionVector(Base6Directions.Direction.Up);
+                gridLeftVect =
+                    RemoteControl.block.CubeGrid.WorldMatrix.GetDirectionVector(Base6Directions.Direction.Left);
                 mass = RemoteControl.block.CalculateShipMass().PhysicalMass;
                 position = RemoteControl.block.CenterOfMass;
                 orientation = RemoteControl.block.WorldMatrix.GetOrientation();
@@ -96,6 +107,46 @@ namespace IngameScript
                 planetDetected = RemoteControl.block.TryGetPlanetPosition(out planetCenter);
                 naturalGravity = RemoteControl.block.GetNaturalGravity();
                 inGravity = naturalGravity.Length() >= 0.5;
+
+                if (inGravity)
+                {
+                    seaElevationVelocity = Vector3D.Dot(linearVelocity, -Vector3D.Normalize(naturalGravity));
+                }
+
+                if (allowEscapeNoseUp && inGravity)
+                {
+                    double groundElevation = 0;
+                    RemoteControl.block.TryGetPlanetElevation(MyPlanetElevation.Surface, out groundElevation);
+                    if (seaElevationVelocity > 0)
+                    {
+                        if (groundElevation > ESCAPE_NOSE_UP_ELEVATION)
+                        {
+                            inGravity = false;
+                            turnNoseUp = true;
+                        }
+                        else
+                        {
+                            turnNoseUp = false;
+                        }
+                    }
+                    else if (seaElevationVelocity < 0)
+                    {
+                        if (groundElevation > noseDownElevation)
+                        {
+                            inGravity = false;
+                            turnNoseUp = true;
+                        }
+                        else
+                        {
+                            turnNoseUp = false;
+                        }
+                    }
+                }
+                else
+                {
+                    turnNoseUp = false;
+                }
+
                 if (inGravity)
                 {
                     RemoteControl.block.TryGetPlanetElevation(MyPlanetElevation.Surface, out distanceToGround);

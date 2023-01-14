@@ -111,13 +111,13 @@ namespace IngameScript
                 }
             }
 
-            public static void Tick()
+            public static void NavigationTick()
             {
                 if (waypoints.Count == 0)
                 {
                     return;
                 }
-                Situation.RefreshParameters();
+                Situation.RefreshSituationbParameters();
                 CheckWaypointPositionCollision();
                 Guidance.Set(waypoints.ElementAt(0));
                 Guidance.Tick();

@@ -65,7 +65,7 @@ namespace IngameScript
                     running = false;
                     return;
                 }
-                Navigation.Tick();
+                Navigation.NavigationTick();
             }
 
             private static Quaternion qInitialInverse, qFinal, qDiff;
@@ -81,7 +81,7 @@ namespace IngameScript
                     Logger.Warn("No connectors available!");
                     return;
                 }
-                Situation.RefreshParameters();
+                Situation.RefreshSituationbParameters();
                 connectorToCenter = Situation.position - connector.GetPosition();
 
                 //if (Math.Abs(Vector3D.Dot(dock[0].posAndOrientation.forward, Situation.gravityUpVector)) < 0.5f)
@@ -125,7 +125,7 @@ namespace IngameScript
             private static Waypoint.wpType wpType;
             private static void SetEndPosisitionAndOrietation(Dock dock)
             {// Previously called SetStance(Dock dock)
-                Situation.RefreshParameters();
+                Situation.RefreshSituationbParameters();
                 wpType = (dock.job == Dock.JobType.HOP) ? Waypoint.wpType.HOPPING : Waypoint.wpType.CONVERGING;
                 if (dock.blockEntityId == 0)
                 {
