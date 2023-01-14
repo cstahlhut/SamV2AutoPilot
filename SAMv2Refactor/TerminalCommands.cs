@@ -36,7 +36,10 @@ namespace IngameScript
             private static int command;
             private static List<string> cleanLines = new List<string> { };
             private static System.Text.RegularExpressions.Match cmd, navMatch, gpsMatch;
-            private static string defaultScreen = "SAMv2 " + VERSION + " \nTo use Remote Commands you must have \na SAM base (ADVERTISER) and\nan LCD with S.A.M.RC\nin the Custom Data.";
+            private static string defaultScreen = "SAMv2 " + VERSION + " \nTo use Remote Commands you must have \n" +
+                "a SAM base (ADVERTISER) and \n" +
+                "an LCD with S.A.M.RC \n" +
+                "in the Custom Data.";
             private static string screenText = defaultScreen;
             private static System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
             public static void Reset()
@@ -63,7 +66,8 @@ namespace IngameScript
                 {
                     return;
                 }
-                if (GridBlocks.masterProgrammableBlock.CustomName.Contains("ADVERTISE") || GridBlocks.masterProgrammableBlock.CustomData.Contains("ADVERTISE"))
+                if (GridBlocks.masterProgrammableBlock.CustomName.Contains(ADVERTISE_TAG) 
+                    || GridBlocks.masterProgrammableBlock.CustomData.Contains(ADVERTISE_TAG))
                 {
                     screenText = "SAMv2 " + VERSION + " \nTo use Remote Commands on servers\nYou must have an LCD with \nS.A.M.RC\nin the Custom Data.";
                     programmableBlock.GridTerminalSystem.GetBlocksOfType<IMyTextPanel>(programmableBlock.lcds);
@@ -91,9 +95,14 @@ namespace IngameScript
                             programmableBlock.lcd.TextPadding = 9.8f;
                             programmableBlock.lcd.ContentType = VRage.Game.GUI.TextPanel.ContentType.TEXT_AND_IMAGE;
                             programmableBlock.lcd.WriteText("S.A.M.RC LCD FOUND", false);
-                            screenText = "S.A.M.RC LCD FOUND \n- Use LCD to send Remote Commands\nto SAM ships";
+                            screenText = "S.A.M.RC LCD FOUND \n" +
+                                "- Use LCD to send Remote Commands\n" +
+                                "to SAM ships";
                             programmableBlock.lcdfound = true;
-                            programmableBlock.lcd.WriteText("SAMv2 " + VERSION + "\n Replace this text\nwith\nSAM RC Commands", false);
+                            programmableBlock.lcd.WriteText("SAMv2 " + VERSION + "\n" +
+                                " Replace this text\n" +
+                                "with\n" +
+                                "SAM RC Commands", false);
                             stringBuilder.Clear();
                             programmableBlock.lcd.ReadText(stringBuilder);
                             break;
@@ -105,7 +114,11 @@ namespace IngameScript
                     }
                     if (programmableBlock.lcdfound == false)
                     {
-                        screenText = "SAMv2 " + VERSION + " S.A.M.RC LCD NOT FOUND\nin same construct.\nNo Remote Commands may be issued.";
+                        screenText = "SAMv2 " + VERSION + "\n" 
+                            + "Advertising Docks = TRUE\n"
+                            + "S.A.M.RC LCD NOT FOUND\n"
+                            + "in same construct.\n" 
+                            + "No Remote Commands may be issued.";
                         Reset();
                         return;
                     }
@@ -157,13 +170,16 @@ namespace IngameScript
                         }
                         if (command == -1)
                         {
-                            screenText = "Invalid command: " + cmd.Groups[1].Value + "\n\nAvailable commands are:\n " + string.Join("\n  ", COMMANDS);
+                            screenText = "Invalid command: " + cmd.Groups[1].Value + "\n\n" +
+                                "Available commands are:\n" +
+                                " " + string.Join("\n  ", COMMANDS);
                             Reset();
                             return;
                         }
                         if (terminalString.Length == 1)
                         {
-                            screenText = "Command must be followed by the ship name.\nExample:\n loop\n ShipName";
+                            screenText = "Command must be followed by the ship name.\n" +
+                                "Example:\n loop\n ShipName";
                             Reset();
                             return;
                         }
@@ -182,7 +198,7 @@ namespace IngameScript
             private static void SendCmd(Program program, int cmd)
             {
                 shipCommand.Command = cmd;
-                screenText = Commander.ExecuteCmd(shipCommand);
+                screenText = Autopilot.ExecuteCmd(shipCommand);
                 if (screenText != "")
                 {
                     return;
@@ -193,7 +209,7 @@ namespace IngameScript
                 {
                     program.lcd.WriteText(Serializer.serialized, false);
                 }
-                program.IGC.SendBroadcastMessage<string>(CMD_TAG, Serializer.serialized);
+                program.IGC.SendBroadcastMessage<string>(REMOTE_CMD_TAG, Serializer.serialized);
                 screenText = "Command sent.\n Will only be successful if acknowledged...";
                 screenText = Serializer.serialized;
             }
@@ -213,7 +229,9 @@ namespace IngameScript
                     gpsMatch = gpsRegStr.Match(navStr);
                     if (!navMatch.Success && !navMatch.Success)
                     {
-                        screenText = "Invalid navigation format:\n" + navStr + "\nUse:\n {Action}[Grid]DockName\nor:\n {Action}DockName\nor:\n DockName\nor {Action}GPS:...";
+                        screenText = "Invalid navigation format:\n"
+                            + navStr + "\nUse:\n {Action}[Grid]DockName\nor:\n" +
+                            " {Action}DockName\nor:\n DockName\nor {Action}GPS:...";
                         return false;
                     }
                     var name = navMatch.Groups[2].Value;
@@ -224,7 +242,8 @@ namespace IngameScript
                     jobType = Dock.JobTypeFromName(name) | Dock.JobTypeFromName(name);
                     if (jobType == Dock.JobType.NONE && name != "")
                     {
-                        screenText = "Invalid Action:\n" + name + "\n\nUse one of:\n Charge,Charge&Load,Charge&Unload,\n Load,Unload;";
+                        screenText = "Invalid Action:\n" + name + "\n\n" +
+                            "Use one of:\n Charge,Charge&Load,Charge&Unload,\n Load,Unload;";
                         return false;
                     }
                     if (gpsMatch.Success)

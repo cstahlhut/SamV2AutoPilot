@@ -45,6 +45,8 @@ namespace IngameScript
                     {
                         return Result.NoHit;
                     }
+
+                    //******************** Remove below if script breaks *********************
                     if (hit.EntityId == GridBlocks.masterProgrammableBlock.CubeGrid.EntityId)
                     {
                         continue;

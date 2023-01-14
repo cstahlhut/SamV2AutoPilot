@@ -87,14 +87,15 @@ namespace IngameScript
 
             public static void Print()
             {
-                if (GridBlocks.textPanelBlocks.Count() == 0 && GridBlocks.cockpitBlocks.Count() == 0)
+                if (GridBlocks.textPanelBlocks.Count() == 0 &&
+                    GridBlocks.cockpitBlocks.Count() == 0)
                 {
                     return;
                 }
                 ResetBuffers();
                 foreach (IMyTextPanel panel in GridBlocks.textPanelBlocks)
                 {
-                    if (Block.HasProperty(panel.EntityId, "Name"))
+                    if (Block.HasProperty(panel.EntityId, NAME_TAG))
                     {
                         continue;
                     }

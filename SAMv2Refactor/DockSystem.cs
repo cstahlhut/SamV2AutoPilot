@@ -31,7 +31,7 @@ namespace IngameScript
             {
                 Serializer.InitPack();
                 Serializer.Pack(Program.ADVERT_ID);
-                if (!Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, "Name", ref connectorName))
+                if (!Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, NAME_TAG, ref connectorName))
                 {
                     connectorName = GridBlocks.masterProgrammableBlock.CubeGrid.CustomName;
                 }
@@ -41,18 +41,18 @@ namespace IngameScript
                 Serializer.Pack(GridBlocks.shipConnectorBlocks.Count());
                 foreach (IMyShipConnector connector in GridBlocks.shipConnectorBlocks)
                 {
-                    if (Block.HasProperty(connector.EntityId, "MAIN"))
+                    if (Block.HasProperty(connector.EntityId, MAIN_CONNECTOR_TAG))
                     {
                         continue;
                     }
                     Serializer.Pack(connector.EntityId);
-                    if (!Block.GetProperty(connector.EntityId, "Name", ref connectorName))
+                    if (!Block.GetProperty(connector.EntityId, NAME_TAG, ref connectorName))
                     {
                         connectorName = connector.CustomName.Trim();
                     }
                     Serializer.Pack(connectorName);
                     Serializer.Pack(connector.GetPosition());
-                    if (Block.HasProperty(connector.EntityId, "REV"))
+                    if (Block.HasProperty(connector.EntityId, CONNECTOR_REVERSE_TAG))
                     {
                         Serializer.Pack(connector.WorldMatrix.Backward);
                     }
@@ -64,7 +64,7 @@ namespace IngameScript
                     approachPath.Clear();
                     foreach (IMyTextPanel panel in GridBlocks.textPanelBlocks)
                     {
-                        if (!Block.GetProperty(panel.EntityId, "Name", ref panelName))
+                        if (!Block.GetProperty(panel.EntityId, NAME_TAG, ref panelName))
                         {
                             continue;
                         }
@@ -81,16 +81,17 @@ namespace IngameScript
 
             public static void Advertise(Program programmableBlock)
             {
-                if (!Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, "ADVERTISE"))
+                if (!Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, ADVERTISE_TAG))
                 {
                     return;
                 }
-                if (GridBlocks.shipConnectorBlocks.Count() == 0 || GridBlocks.shipConnectorBlocks.Count() == GridBlocks.mainShipConnectorBlocks.Count())
+                if (GridBlocks.shipConnectorBlocks.Count() == 0 
+                    || GridBlocks.shipConnectorBlocks.Count() == GridBlocks.mainShipConnectorBlocks.Count())
                 {
                     return;
                 }
                 Serialize();
-                programmableBlock.IGC.SendBroadcastMessage<string>(TAG, Serializer.serialized);
+                programmableBlock.IGC.SendBroadcastMessage<string>(MAIN_CMD_TAG, Serializer.serialized);
             }
 
             private static long gridEntityId;

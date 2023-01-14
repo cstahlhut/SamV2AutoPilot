@@ -24,8 +24,9 @@ namespace IngameScript
     {
         private static class ConnectorControl
         {   //ConnectorControl
+            //private static List<IMyShipConnector> connectors = null;
             private static int connectAttempts = 0;
-            private static List<IMyShipConnector> connectors = null;
+            
 
             public static void AttemptConnect()
             {
@@ -41,7 +42,7 @@ namespace IngameScript
                 }
                 if (0 == --connectAttempts)
                 {
-                    Logger.Info("Failed to dock!");
+                    Logger.Info(MSG_FAILED_TO_DOCK);
                 }
                 else
                 {
@@ -56,27 +57,26 @@ namespace IngameScript
                     return;
                 }
                 connectAttempts = 0;
-                Logger.Info("Docking successful!");
+                Logger.Info(MSG_DOCKING_SUCCESSFUL);
                 Signal.Send(Signal.SignalType.DOCK);
-                if (!Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, "NODAMPENERS"))
+                if (!Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, NO_DAMPENERS_TAG))
                 {
-                    Logistics.Dampeners(false);
+                    Logistics.Dampeners(false); // turn off dampners
                 }
             }
 
-            private static List<IMyShipConnector> ListOfConnectors()
-            {
-                if (GridBlocks.mainShipConnectorBlocks.Count == 0)
-                {
-                    return GridBlocks.shipConnectorBlocks;
-                }
-                return GridBlocks.mainShipConnectorBlocks;
-            }
+            //private static List<IMyShipConnector> ListOfConnectors()
+            //{
+            //    if (GridBlocks.mainShipConnectorBlocks.Count == 0)
+            //    {
+            //        return GridBlocks.shipConnectorBlocks;
+            //    }
+            //    return GridBlocks.mainShipConnectorBlocks;
+            //}
 
             public static IMyShipConnector OtherConnected()
             {
-                connectors = ListOfConnectors();
-                foreach (IMyShipConnector connector in connectors)
+                foreach (IMyShipConnector connector in GridBlocks.shipConnectorBlocks)
                 {
                     if (connector.Status == MyShipConnectorStatus.Connected)
                     {
@@ -88,8 +88,7 @@ namespace IngameScript
 
             public static IMyShipConnector Connected()
             {
-                connectors = ListOfConnectors();
-                foreach (IMyShipConnector connector in connectors)
+                foreach (IMyShipConnector connector in GridBlocks.shipConnectorBlocks)
                 {
                     if (connector.Status == MyShipConnectorStatus.Connected)
                     {
@@ -102,14 +101,17 @@ namespace IngameScript
             private static bool connected;
             public static bool Connect()
             {
-                connectors = ListOfConnectors();
                 connected = false;
-                foreach (IMyShipConnector connector in connectors)
+                foreach (IMyShipConnector connector in GridBlocks.shipConnectorBlocks)
                 {
                     connector.Connect();
                     if (connector.Status == MyShipConnectorStatus.Connected)
                     {
                         connected = true;
+                        if (!connector.OtherConnector.CubeGrid.IsStatic)
+                        {
+                            RemoteControl.block.DampenersOverride = false;
+                        }
                     }
                 }
                 return connected;
@@ -118,9 +120,8 @@ namespace IngameScript
             private static Vector3D retractVector;
             public static Vector3D Disconnect()
             {
-                connectors = ListOfConnectors();
                 retractVector = Vector3D.Zero;
-                foreach (IMyShipConnector connector in connectors)
+                foreach (IMyShipConnector connector in GridBlocks.shipConnectorBlocks)
                 {
                     if (connector.Status == MyShipConnectorStatus.Connected)
                     {
@@ -132,23 +133,23 @@ namespace IngameScript
             }
 
             private static Dock retractDock;
-            private static Dock dock;
             public static Dock DisconnectAndTaxiData()
             {
-                connectors = ListOfConnectors();
                 retractDock = null;
-                foreach (IMyShipConnector connector in connectors)
+                foreach (IMyShipConnector connector in GridBlocks.shipConnectorBlocks)
                 {
                     if (connector.Status == MyShipConnectorStatus.Connected)
                     {
-                        dock = DockData.GetDock(connector.OtherConnector.EntityId);
+                        var dock = DockData.GetDock(connector.OtherConnector.EntityId);
                         if (dock != null)
                         {
                             retractDock = dock;
                         }
                         else
                         {
-                            retractDock = Dock.NewDock(connector.OtherConnector.GetPosition(), connector.OtherConnector.WorldMatrix.Forward, connector.OtherConnector.WorldMatrix.Up, "D");
+                            retractDock = Dock.NewDock(connector.OtherConnector.GetPosition(),
+                                connector.OtherConnector.WorldMatrix.Forward,
+                                connector.OtherConnector.WorldMatrix.Up, "D");
                         }
                         Signal.Send(Signal.SignalType.UNDOCK);
                         connector.Disconnect();
@@ -157,16 +158,16 @@ namespace IngameScript
                 return retractDock;
             }
 
-            private static bool reverse;
             public static IMyShipConnector GetConnector(Dock dock)
             {
-                connectors = ListOfConnectors();
-                if (Math.Abs(Vector3D.Dot(dock.posAndOrientation.forward, RemoteControl.block.WorldMatrix.Up)) < 0.5f)
+                if (Math.Abs(Vector3D.Dot(dock.posAndOrientation.forward,
+                    RemoteControl.block.WorldMatrix.Up)) < 0.5f)
                 {
-                    foreach (IMyShipConnector connector in connectors)
+                    foreach (IMyShipConnector connector in GridBlocks.shipConnectorBlocks)
                     {
-                        reverse = Block.HasProperty(connector.EntityId, "REV");
-                        if (Math.Abs(Vector3D.Dot(reverse ? connector.WorldMatrix.Backward : connector.WorldMatrix.Forward, RemoteControl.block.WorldMatrix.Up)) < 0.5f)
+                        bool reverse = Block.HasProperty(connector.EntityId, CONNECTOR_REVERSE_TAG);
+                        if (Math.Abs(Vector3D.Dot(reverse ? connector.WorldMatrix.Backward :
+                            connector.WorldMatrix.Forward, RemoteControl.block.WorldMatrix.Up)) < 0.5f)
                         {
                             return connector;
                         }
@@ -174,16 +175,17 @@ namespace IngameScript
                 }
                 else
                 {
-                    foreach (IMyShipConnector connector in connectors)
+                    foreach (IMyShipConnector connector in GridBlocks.shipConnectorBlocks)
                     {
-                        reverse = Block.HasProperty(connector.EntityId, "REV");
-                        if (Vector3D.Dot(reverse ? connector.WorldMatrix.Backward : connector.WorldMatrix.Forward, -dock.posAndOrientation.forward) > 0.5f)
+                        bool reverse = Block.HasProperty(connector.EntityId, CONNECTOR_REVERSE_TAG);
+                        if (Vector3D.Dot(reverse ? connector.WorldMatrix.Backward :
+                            connector.WorldMatrix.Forward, -dock.posAndOrientation.forward) > 0.5f)
                         {
                             return connector;
                         }
                     }
                 }
-                foreach (IMyShipConnector connector in connectors)
+                foreach (IMyShipConnector connector in GridBlocks.shipConnectorBlocks)
                 {
                     return connector;
                 }

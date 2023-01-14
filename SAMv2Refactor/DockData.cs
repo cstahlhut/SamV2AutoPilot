@@ -94,7 +94,7 @@ namespace IngameScript
             {
                 if (RemoteControl.block == null)
                 {
-                    Logger.Err("No Remote Control");
+                    Logger.Err(MSG_NO_REMOTE_CONTROL);
                     return;
                 }
                 Vector3D gravity = RemoteControl.block.GetNaturalGravity();
@@ -119,7 +119,7 @@ namespace IngameScript
             {
                 if (RemoteControl.block == null)
                 {
-                    Logger.Err("No Remote Control");
+                    Logger.Err(MSG_NO_REMOTE_CONTROL);
                     return;
                 }
                 Vector3D pos = RemoteControl.block.CenterOfMass;
@@ -323,13 +323,13 @@ namespace IngameScript
                 status = Navigation.WaypointMsg();
                 if (status != "")
                 {
-                    if (Commander.currentDock != null)
+                    if (Autopilot.currentDock != null)
                     {
-                        return str + status + "\n   to [" + Commander.currentDock.gridName + "] " + Commander.currentDock.blockName;
+                        return str + status + "\n   to [" + Autopilot.currentDock.gridName + "] " + Autopilot.currentDock.blockName;
                     }
                     return str + status + "\n   to GPS marker";
                 }
-                if (Commander.active)
+                if (Autopilot.active)
                 {
                     return str + "waiting...";
                 }
@@ -345,7 +345,7 @@ namespace IngameScript
                 // Printbuffer for Navigation mode
                 str = Terminal.GenerateTerminalInfo("Navigation Mode", active);
                 status = Navigation.WaypointMsg();
-                cmdStatus = Commander.active ? "waiting..." : "disabled";
+                cmdStatus = Autopilot.active ? "waiting..." : "disabled";
                 str += "   " + ((status == "" && !Pilot.running) ? cmdStatus : status) + "\n";
                 if (selectedDocks.Count() == 0)
                 {

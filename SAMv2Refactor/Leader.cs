@@ -78,7 +78,7 @@ namespace IngameScript
             public static void AdvertiseLeader(Program program)
             {
                 // If no SAM.LEADER tag exit
-                if (!Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, "LEADER"))
+                if (!Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LEADER_TAG))
                 {
                     return;
                 }
@@ -86,7 +86,7 @@ namespace IngameScript
                 // If not remote control found exit and throw error to Logger LCD
                 if (RemoteControl.block == null)
                 {
-                    Logger.Err("No Remote Control");
+                    Logger.Err(MSG_NO_REMOTE_CONTROL);
                     return;
                 }
                 leaderGrid.pos = RemoteControl.block.CenterOfMass;

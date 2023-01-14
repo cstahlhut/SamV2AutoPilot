@@ -24,8 +24,10 @@ namespace IngameScript
     {
         private static class CustomData
         { // CustomData
-            public static System.Text.RegularExpressions.Regex customDataRegex = new System.Text.RegularExpressions.Regex("\\s*" 
-                + TAG + "\\.([a-zA-Z0-9]*)([:=]{1}([\\S]*))?", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            public static System.Text.RegularExpressions.Regex customDataRegex =
+                new System.Text.RegularExpressions.Regex("\\s*" 
+                + MAIN_CMD_TAG + "\\.([a-zA-Z0-9]*)([:=]{1}([\\S]*))?",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             private static System.Text.RegularExpressions.Match match;
             private static char[] lineSeparator = new char[] { '\n' };
             private static char[] attributeSeparator = new char[] { ':', '=' }; // Not used
@@ -47,30 +49,36 @@ namespace IngameScript
                 entityId = block.EntityId;
                 foreach (string line in lines)
                 {
+                    
                     trim = line.Trim();
-                    if (trim == "")
+                    if (trim == "") // No tags found skip over block
                     {
                         continue;
                     }
+                    
                     match = customDataRegex.Match(trim);
-                    matched = match.Success || matched;
-                    if (match.Groups.Count == 4)
+                    matched = match.Success || matched; // Check its a SAM command format in CustomData
+
+                    if (match.Groups.Count == 4) // Additional Check on group count 
                     {
-                        if (match.Groups[1].Value != "")
+                        if (match.Groups[1].Value != "") // Check if anything after MAIN_CMD_TAG
                         {
+                            // Not sure - its looking for some long string?
                             if (match.Groups[3].Value != "")
                             {
-                                attributeCap = blockProfile.Capitalize(match.Groups[1].Value);
+                                attributeCap = Helper.Capitalize(match.Groups[1].Value);
                                 if (attributeCap != "")
                                 {
                                     value = match.Groups[3].Value;
-                                    build += TAG + "." + attributeCap + "=" + value + "\n";
+                                    build += MAIN_CMD_TAG + "." + attributeCap + "=" + value + "\n";
                                     Block.UpdateProperty(entityId, attributeCap, value);
                                     continue;
                                 }
                             }
+                            
                             else
                             {
+                                // Convert all entered commands to upper case for matching
                                 tagUpper = match.Groups[1].Value.ToUpper();
                                 if (blockProfile.exclusiveTags.Contains(tagUpper))
                                 {
@@ -87,11 +95,12 @@ namespace IngameScript
                                     continue;
                                 }
                                 Block.UpdateProperty(entityId, tagUpper, "");
-                                build += TAG + "." + tagUpper + "\n";
+                                build += MAIN_CMD_TAG + "." + tagUpper + "\n";
                                 continue;
                             }
                         }
-                        build += TAG + ".\n";
+                        // If just MAIN_CMD_TAG, add a . and go to next line
+                        build += MAIN_CMD_TAG + ".\n"; 
                         continue;
                     }
                     else

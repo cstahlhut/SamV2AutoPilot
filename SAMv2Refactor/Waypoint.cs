@@ -26,9 +26,13 @@ namespace IngameScript
         { // Waypoint
             public PositionAndOrientation positionAndOrientation;
             public float maxSpeed;
+            [Flags]
             public enum wpType
             {
-                ALIGNING, DOCKING, UNDOCKING, CONVERGING, NAVIGATING, TAXIING, APPROACHING, FOLLOWING, HOPPING
+                ALIGNING = 1 << 0, DOCKING = 1 << 1, UNDOCKING = 1 << 2,
+                CONVERGING = 1 << 3, APPROACHING = 1 << 4, NAVIGATING = 1 << 5,
+                TESTING = 1 << 6, TAXIING = 1 << 7, CRUISING = 1 << 8, 
+                FOLLOWING = 1 << 9, HOPPING = 1 << 10
             };
             public wpType type;
 
@@ -39,36 +43,168 @@ namespace IngameScript
                 type = waypointType;
             }
 
+            private static string speed;
+            private static double wait;
             public string GetWaypointMsg()
             {
                 switch (this.type)
                 {
                     case wpType.ALIGNING:
-                        return "aligning...";
+                        if (GridBlocks.masterProgrammableBlock != null
+                            && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LOOP_MODE_TAG))
+                        {
+                            if (Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, "Wait", ref speed))
+                            {
+                                if (Double.TryParse(speed, out wait))
+                                {
+                                    Autopilot.waitTime = TimeSpan.FromSeconds(wait).Ticks;
+                                }
+                                return "[LOOP][WAIT=" + wait + "] " + MSG_ALIGNING;
+                            }
+                            else
+                            {
+                                return "[LOOP][WAIT=10] " + MSG_ALIGNING;
+                            }
+                            
+                        }
+                        else if (GridBlocks.masterProgrammableBlock != null
+                            && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG))
+                        {
+                            return "[LIST MODE] " + MSG_ALIGNING;
+                        }
+                        else
+                        {
+                            return MSG_ALIGNING;
+                        }
                     case wpType.DOCKING:
-                        return "docking...";
+                        if (GridBlocks.masterProgrammableBlock != null
+                            && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LOOP_MODE_TAG))
+                        {
+                            return "[LOOP MODE] " + MSG_DOCKING;
+                        }
+                        else if (GridBlocks.masterProgrammableBlock != null
+                            && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG))
+                        {
+                            return "[LIST MODE] " + MSG_DOCKING;
+                        }
+                        else
+                        {
+                            return MSG_DOCKING;
+                        }
                     case wpType.UNDOCKING:
-                        return "undocking...";
-                    case wpType.APPROACHING:
-                        return "approaching...";
+                        if (GridBlocks.masterProgrammableBlock != null
+                            && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LOOP_MODE_TAG))
+                        {
+                            return "[LOOP MODE] " + MSG_UNDOCKING;
+                        }
+                        else if (GridBlocks.masterProgrammableBlock != null
+                            && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG))
+                        {
+                            return "[LIST MODE] " + MSG_UNDOCKING;
+                        }
+                        else
+                        {
+                            return MSG_UNDOCKING;
+                        }
                     case wpType.CONVERGING:
-                        return "converging...";
+                        if (GridBlocks.masterProgrammableBlock != null
+                            && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LOOP_MODE_TAG))
+                        {
+                            return "[LOOP MODE] " + MSG_CONVERGING;
+                        }
+                        else if (GridBlocks.masterProgrammableBlock != null
+                            && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG))
+                        {
+                            return "[LIST MODE] " + MSG_CONVERGING;
+                        }
+                        else
+                        {
+                            return MSG_CONVERGING;
+                        }
+                    case wpType.APPROACHING:
+                        if (GridBlocks.masterProgrammableBlock != null
+                            && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LOOP_MODE_TAG))
+                        {
+                            return "[LOOP MODE] " + MSG_APPROACHING;
+                        }
+                        else if (GridBlocks.masterProgrammableBlock != null
+                            && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG))
+                        {
+                            return "[LIST MODE] " + MSG_APPROACHING;
+                        }
+                        else
+                        {
+                            return MSG_APPROACHING;
+                        }
                     case wpType.NAVIGATING:
-                        return "navigating...";
+                        if (GridBlocks.masterProgrammableBlock != null
+                            && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LOOP_MODE_TAG))
+                        {
+                            return "[LOOP MODE] " + MSG_NAVIGATING;
+                        }
+                        else if (GridBlocks.masterProgrammableBlock != null
+                            && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG))
+                        {
+                            return "[LIST MODE] " + MSG_NAVIGATING;
+                        }
+                        else
+                        {
+                            return MSG_NAVIGATING;
+                        }
                     case wpType.TAXIING:
-                        return "taxiing...";
+                        if (GridBlocks.masterProgrammableBlock != null
+                            && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LOOP_MODE_TAG))
+                        {
+                            return "[LOOP MODE] " + MSG_TAXIING;
+                        }
+                        else if (GridBlocks.masterProgrammableBlock != null
+                            && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG))
+                        {
+                            return "[LIST MODE] " + MSG_TAXIING;
+                        }
+                        else
+                        {
+                            return MSG_TAXIING;
+                        }
+                    case wpType.CRUISING:
+                        return String.Format(MSG_CRUISING_AT,
+                            Situation.autoCruiseAltitude, MathHelper.ToDegrees(Navigation.ClimbAngle));
                     case wpType.FOLLOWING:
                         return "following...";
                     case wpType.HOPPING:
                         return "hopping...";
+                    default: break;
                 }
                 return "Testing...";
+            }
+
+            public static Dock DockFromGPS(string coordinates)
+            {
+                string[] segment = coordinates.Split(':');
+                //Logger.Info($"GPS --- {coordinates}");
+                if (segment.Length == 7)
+                {
+                    Waypoint wp = FromString(coordinates);
+                    Dock dock = Dock.NewDock(wp.positionAndOrientation, segment[1]);
+                    dock.gridName = "GPS";
+                    return dock;
+                }
+                else
+                {
+                    Logger.Err("Unable to add location,\ninvalid GPS coordinate");
+                    return null;
+                }
             }
 
             public static Waypoint FromString(string coordinates)
             {
                 GPS gps = new GPS(coordinates);
-                return new Waypoint(new PositionAndOrientation(gps.pos, Vector3D.Zero, Vector3D.Zero), MAX_SPEED, wpType.CONVERGING);
+                Waypoint wp = new Waypoint(new PositionAndOrientation(
+                    Helper.UnserializeVector(coordinates), Vector3D.Zero,
+                    Vector3D.Zero), CONVERGING_SPEED, wpType.CONVERGING);
+                return wp;
+                //return new Waypoint(new PositionAndOrientation(gps.pos, Vector3D.Zero, Vector3D.Zero),
+                //    MAX_SPEED, wpType.CONVERGING);
             }
         }
     }

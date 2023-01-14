@@ -154,10 +154,11 @@ namespace IngameScript
                         return false;
                     }
                     shipConnectorBlocks.Add(shipConnector);
-                    if (Block.HasProperty(shipConnector.EntityId, "MAIN"))
+                    if (Block.HasProperty(shipConnector.EntityId, MAIN_CONNECTOR_TAG))
                     {
                         mainShipConnectorBlocks.Add(shipConnector);
-                        GridBlocks.UpdateCount("MAIN " + block.DefinitionDisplayNameText);
+                        GridBlocks.UpdateCount(MAIN_CONNECTOR_TAG 
+                            + " " + block.DefinitionDisplayNameText);
                     }
                 }
                 else if ((textPanel = block as IMyTextPanel) != null)
@@ -176,7 +177,7 @@ namespace IngameScript
                 {
                     if (Block.ValidType(ref block, typeof(IMyThrust)))
                     {
-                        if (Block.HasProperty(block.EntityId, "IGNORE"))
+                        if (Block.HasProperty(block.EntityId, IGNORE_TAG))
                         {
                             return false;
                         }
@@ -240,10 +241,10 @@ namespace IngameScript
                 terminalBlock = me as IMyTerminalBlock;
                 if (!Block.ValidProfile(ref terminalBlock, GridProfile.blockProfile))
                 {
-                    me.CustomName += " [" + TAG + "]";
+                    me.CustomName += " [" + MAIN_CMD_TAG + "]";
                     return;
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "Speed", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, MAX_SPEED_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
@@ -254,29 +255,18 @@ namespace IngameScript
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "MaxSpeed", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, DOCK_SPEED_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
-                        if (MAX_SPEED != speedInt)
+                        if (DOCK_SPEED != speedInt)
                         {
-                            MAX_SPEED = speedInt;
-                            Logger.Info("Maximum speed changed to " + MAX_SPEED);
+                            DOCK_SPEED = speedInt;
+                            Logger.Info("Docking speed changed to " + DOCK_SPEED);
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "DockingSpeed", ref speed))
-                {
-                    if (float.TryParse(speed, out speedInt))
-                    {
-                        if (DOCKING_SPEED != speedInt)
-                        {
-                            DOCKING_SPEED = speedInt;
-                            Logger.Info("Docking speed changed to " + DOCKING_SPEED);
-                        }
-                    }
-                }
-                if (Block.GetProperty(terminalBlock.EntityId, "TaxiingSpeed", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, TAXI_SPEED_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
@@ -287,29 +277,29 @@ namespace IngameScript
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "TaxiingDistance", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, TAXI_DISTANCE_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
-                        if (TAXIING_DISTANCE != (float)speedInt)
+                        if (DOCKING_DISTANCE != (float)speedInt)
                         {
-                            TAXIING_DISTANCE = (float)speedInt;
-                            Logger.Info("Taxiing distance changed to " + TAXIING_DISTANCE);
+                            DOCKING_DISTANCE = (float)speedInt;
+                            Logger.Info("Taxi distance changed to " + DOCKING_DISTANCE);
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "TaxiingPanelDistance", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, TAXI_PANEL_DISTANCE_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
-                        if (TAXIING_PANEL_DISTANCE != (float)speedInt)
+                        if (DOCKING_PANEL_DISTANCE != (float)speedInt)
                         {
-                            TAXIING_PANEL_DISTANCE = (float)speedInt;
-                            Logger.Info("Taxiing panel distance changed to " + TAXIING_PANEL_DISTANCE);
+                            DOCKING_PANEL_DISTANCE = (float)speedInt;
+                            Logger.Info("Taxi panel distance changed to " + DOCKING_PANEL_DISTANCE);
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "ApproachDistance", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, APPROACH_DISTANCE_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
@@ -320,29 +310,29 @@ namespace IngameScript
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "ApproachingSpeed", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, APPROACH_SPEED_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
-                        if (APPROACHING_SPEED != speedInt)
+                        if (APPROACH_SPEED != speedInt)
                         {
-                            APPROACHING_SPEED = speedInt;
-                            Logger.Info("Approaching speed changed to " + APPROACHING_SPEED);
+                            APPROACH_SPEED = speedInt;
+                            Logger.Info("Approaching speed changed to " + APPROACH_SPEED);
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "DockDistance", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, DOCK_DISTANCE_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
-                        if (DOCK_DISTANCE != (float)speedInt)
+                        if (DOCKING_DISTANCE != (float)speedInt)
                         {
-                            DOCK_DISTANCE = (float)speedInt;
-                            Logger.Info("Docking distance changed to " + DOCK_DISTANCE);
+                            DOCKING_DISTANCE = (float)speedInt;
+                            Logger.Info("Docking distance changed to " + DOCKING_DISTANCE);
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "UndockDistance", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, UNDOCK_DISTANCE_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
@@ -353,31 +343,34 @@ namespace IngameScript
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "Wait", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, WAIT_TAG, ref speed))
                 {
                     if (Double.TryParse(speed, out wait))
                     {
-                        Commander.waitTime = TimeSpan.FromSeconds(wait).Ticks;
+                        Autopilot.waitTime = TimeSpan.FromSeconds(wait).Ticks;
                     }
                 }
-                gravity = Block.HasProperty(terminalBlock.EntityId, "IGNOREGRAVITY");
+                gravity = Block.HasProperty(terminalBlock.EntityId, IGNORE_GRAVITY_TAG);
                 if (gravity != Situation.ignoreGravity)
                 {
                     Situation.ignoreGravity = gravity;
                     Logger.Info("Ship orientation " + (gravity ? "ignoring" : "using") + " gravity for alignment.");
                 }
-                if (Block.HasProperty(terminalBlock.EntityId, "LIST"))
+                if (Block.HasProperty(terminalBlock.EntityId, LIST_MODE_TAG))
                 {
-                    Commander.mode = Commander.Mode.LIST;
+                    Autopilot.mode = Autopilot.Mode.LIST;
+                    //Logger.Info("Running in LIST mode");
                 }
-                else if (Block.HasProperty(terminalBlock.EntityId, "LOOP"))
+                else if (Block.HasProperty(terminalBlock.EntityId, LOOP_MODE_TAG))
                 {
-                    Commander.mode = Commander.Mode.LOOP;
+                    Autopilot.mode = Autopilot.Mode.LOOP;
+                    //Logger.Info("Running in LOOP mode");
                 }
                 else
                 {
-                    Commander.mode = Commander.Mode.SINGLE;
-                    Commander.active = false;
+                    Autopilot.mode = Autopilot.Mode.SINGLE;
+                    Autopilot.active = false;
+                    //Logger.Info("Running in SINGLE mode");
                 }
             }
 

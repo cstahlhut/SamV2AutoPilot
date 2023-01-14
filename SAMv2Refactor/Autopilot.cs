@@ -22,7 +22,7 @@ namespace IngameScript
 {
     partial class Program
     {
-        private static class Commander
+        private static class Autopilot
         { // Commander
             public static bool active = false;
             public static Dock currentDock;
@@ -209,12 +209,12 @@ namespace IngameScript
                 {
                     return;
                 }
-                program.IGC.SendBroadcastMessage<string>(CMD_RES_TAG, shipCommand);
+                program.IGC.SendBroadcastMessage<string>(REMOTE_CMD_RESPONSE_TAG, shipCommand);
             }
 
             public static string ExecuteCmd(ShipCommand shipCommand)
             {
-                if (!Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, "Name", ref myName))
+                if (!Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, NAME_TAG, ref myName))
                 {
                     myName = GridBlocks.masterProgrammableBlock.CubeGrid.CustomName;
                 }
@@ -319,14 +319,14 @@ namespace IngameScript
                 if (newMode == Mode.LIST)
                 {
                     newCustomName = newCustomName.Replace(" LOOP", "");
-                    newCustomName = newCustomName.Replace("[" + TAG, "[" + TAG + " LIST");
+                    newCustomName = newCustomName.Replace("[" + MAIN_CMD_TAG, "[" + MAIN_CMD_TAG + " LIST");
                     Block.UpdateProperty(GridBlocks.masterProgrammableBlock.EntityId, "LIST", "");
                     Block.RemoveProperty(GridBlocks.masterProgrammableBlock.EntityId, "LOOP");
                 }
                 else if (newMode == Mode.LOOP)
                 {
                     newCustomName = newCustomName.Replace(" LIST", "");
-                    newCustomName = newCustomName.Replace("[" + TAG, "[" + TAG + " LOOP");
+                    newCustomName = newCustomName.Replace("[" + MAIN_CMD_TAG, "[" + MAIN_CMD_TAG + " LOOP");
                     Block.UpdateProperty(GridBlocks.masterProgrammableBlock.EntityId, "LOOP", "");
                     Block.RemoveProperty(GridBlocks.masterProgrammableBlock.EntityId, "LIST");
                 }

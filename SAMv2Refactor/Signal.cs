@@ -23,35 +23,28 @@ namespace IngameScript
     partial class Program
     {
         private static class Signal
-        { // Signal
-            public enum SignalType { DOCK, NAVIGATION, START, UNDOCK };
-            public static Dictionary<SignalType, int> list = new Dictionary<SignalType, int>();
-            private static HashSet<SignalType> lastSignal = new HashSet<SignalType> { };
-            private static int SIGNAL_MAX_ATTEMPTS = 10;
+        {
+            public enum SignalType { DOCK, NAVIGATION, START, UNDOCK, APPROACH };
+            public static HashSet<SignalType> list = new HashSet<SignalType>();
+            public static long lastSignal = long.MaxValue;
+            public static Program thisProgram;
+            public static int signalAttempt = SIGNAL_MAX_ATTEMPTS;
+            public const int SIGNAL_MAX_ATTEMPTS = 5;
             public static void Send(SignalType signal)
             {
-                list[signal] = SIGNAL_MAX_ATTEMPTS;
-            }
-
-            public static void UpdateSignals()
-            {
-                foreach (KeyValuePair<SignalType, int> signalType in list)
+                list.Add(signal);
+                lastSignal = DateTime.Now.Ticks;
+                if (signal == SignalType.UNDOCK)
                 {
-                    lastSignal.Add(signalType.Key);
+                    Logger.Info("Undock signal received.");
+                    thisProgram.SendSignals();
                 }
-                foreach (SignalType signal in lastSignal)
-                {
-                    if (--list[signal] < 1)
-                    {
-                        list.Remove(signal);
-                    }
-                }
-                lastSignal.Clear();
             }
-
             public static void Clear()
             {
+                lastSignal = long.MaxValue;
                 list.Clear();
+
             }
         }
     }
