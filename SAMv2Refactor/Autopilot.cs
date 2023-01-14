@@ -22,7 +22,7 @@ namespace IngameScript
 {
     partial class Program
     {
-        private static class Commander
+        private static class Autopilot
         { // Commander
             public static bool active = false;
             public static Dock currentDock;
@@ -63,9 +63,9 @@ namespace IngameScript
             private static bool chargeDone;
             private static bool cargoDone;
 
-            public static void CommanderTick()
+            public static void AutopilotTick()
             {
-                // Commander Tick
+                // Autopilot Tick (used to be Commander)
                 if (!active || Pilot.running)
                 {
                     return;

@@ -63,12 +63,12 @@ namespace IngameScript
                     Serializer.Pack(DockData.selectedTopCONF);
                     Serializer.Pack(Pilot.running);
                     Serializer.Pack(Navigation.waypoints);
-                    Serializer.Pack(Commander.active);
-                    if (Commander.active)
+                    Serializer.Pack(Autopilot.active);
+                    if (Autopilot.active)
                     {
-                        Serializer.Pack(Commander.currentDock);
+                        Serializer.Pack(Autopilot.currentDock);
                     }
-                    Serializer.Pack(Commander.mode);
+                    Serializer.Pack(Autopilot.mode);
                 }
                 catch (Exception e)
                 {
@@ -120,12 +120,12 @@ namespace IngameScript
                 {
                     return true;
                 }
-                Commander.active = Serializer.UnpackBool();
-                if (Commander.active)
+                Autopilot.active = Serializer.UnpackBool();
+                if (Autopilot.active)
                 {
-                    Commander.currentDock = Serializer.UnpackDock();
+                    Autopilot.currentDock = Serializer.UnpackDock();
                 }
-                Commander.mode = Serializer.UnpackCommanderMode();
+                Autopilot.mode = Serializer.UnpackCommanderMode();
                 return true;
             }
         }

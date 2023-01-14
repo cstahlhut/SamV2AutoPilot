@@ -42,7 +42,7 @@
     <Compile Include="Guidance.cs" />
     <Compile Include="Horizont.cs" />
     <Compile Include="Leader.cs" />
-    <Compile Include="Commander.cs" />
+    <Compile Include="Autopilot.cs" />
     <Compile Include="Logistics.cs" />
     <Compile Include="DockData.cs" />
     <Compile Include="DockSystem.cs" />

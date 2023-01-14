@@ -182,7 +182,7 @@ namespace IngameScript
             private static void SendCmd(Program program, int cmd)
             {
                 shipCommand.Command = cmd;
-                screenText = Commander.ExecuteCmd(shipCommand);
+                screenText = Autopilot.ExecuteCmd(shipCommand);
                 if (screenText != "")
                 {
                     return;

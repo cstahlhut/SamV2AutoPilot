@@ -182,7 +182,7 @@ namespace IngameScript
                 Pack(val.navCmds);
             }
 
-            public static void Pack(Commander.Mode val)
+            public static void Pack(Autopilot.Mode val)
             {
                 Pack((int)val);
             }
@@ -361,9 +361,9 @@ namespace IngameScript
                 return sc;
             }
 
-            public static Commander.Mode UnpackCommanderMode()
+            public static Autopilot.Mode UnpackCommanderMode()
             {
-                return (Commander.Mode)UnpackInt();
+                return (Autopilot.Mode)UnpackInt();
             }
 
             public static Grid UnpackLeaderGrid()
