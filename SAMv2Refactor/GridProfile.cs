@@ -25,18 +25,22 @@ namespace IngameScript
         private static class GridProfile
         { // Profiles
             private static string[] empty = new string[] { };
-            private static string[] ignore = new string[] { "IGNORE" };
-            private static string[] name = new string[] { "Name" };
-            private static string[] meTags = new string[] { "DEBUG", "ADVERTISE", "NODAMPENERS", "IGNOREGRAVITY", "LEADER" };
-            private static string[] exclusiveTags = new string[] { "LIST", "LOOP" };
-            private static string[] pbAttributes = new string[]{"Follow","FollowFront","FollowUp","FollowRight","Name","Speed","Wait", "TaxiingDistance",
-                "ApproachDistance","DockDistance","UndockDistance","DockingSpeed","TaxiingSpeed","MaxSpeed","Aggro","ConvergingSpeed",
-                "MassExcess","TaxiingPanelDistance","ApproachingSpeed","EffectiveThrust"};
+            private static string[] ignore = new string[] { IGNORE_TAG };
+            private static string[] name = new string[] { NAME_TAG };
+            private static string[] meTags = new string[] { "DEBUG", ADVERTISE_TAG, NO_DAMPENERS_TAG, IGNORE_GRAVITY_TAG, LEADER_TAG };
+            private static string[] exclusiveTags = new string[] { LIST_MODE_TAG, LOOP_MODE_TAG };
+            private static string[] pbAttributes = new string[]{
+                FOLLOW_TAG, FOLLOW_FRONT_TAG, FOLLOW_UP_TAG, FOLLOW_RIGHT_TAG, 
+                NAME_TAG, MAX_SPEED_TAG, WAIT_TAG, TAXI_DISTANCE_TAG,
+                APPROACH_DISTANCE_TAG, DOCK_DISTANCE_TAG, UNDOCK_DISTANCE_TAG,
+                DOCK_SPEED_TAG, TAXI_SPEED_TAG, MAX_SPEED_TAG, AGGRO_TAG,
+                CONVERGING_SPEED_TAG, MASS_EXCESS_TAG, TAXI_PANEL_DISTANCE_TAG,
+                APPROACH_SPEED_TAG, EFFECTIVE_THRUST_TAG};
             private static string[] textPanelTags = new string[] { "OVR" };
             private static string[] textPanelExclusiveTags = new string[] { "LOG", "NAV", "CONF", "DATA", "STAT" };
             private static string[] cockpitPanelTags = new string[] { "OVR" };
             public static string[] panelTags = new string[] { "Panel0", "Panel1", "Panel2", "Panel3", "Panel4", "Panel5", "Panel6", "Panel7", "Panel8", "Panel9" };
-            private static string[] connectorTags = new string[] { "REV", "MAIN" };
+            private static string[] connectorTags = new string[] { REVERSE_CONNECTOR_TAG, MAIN_CONNECTOR_TAG };
             private static string[] timerTags = new string[] { "DOCKED", "NAVIGATED", "UNDOCKED", "STARTED" };
             public static string[] capacity = new string[] { "Full", "Empty" };
             private static string[] batteryTags = new string[] { "FORCE" };

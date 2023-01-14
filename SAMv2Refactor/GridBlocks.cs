@@ -154,7 +154,7 @@ namespace IngameScript
                         return false;
                     }
                     shipConnectorBlocks.Add(shipConnector);
-                    if (Block.HasProperty(shipConnector.EntityId, "MAIN"))
+                    if (Block.HasProperty(shipConnector.EntityId, MAIN_CONNECTOR_TAG))
                     {
                         mainShipConnectorBlocks.Add(shipConnector);
                         GridBlocks.UpdateCount("MAIN " + block.DefinitionDisplayNameText);
@@ -176,7 +176,7 @@ namespace IngameScript
                 {
                     if (Block.ValidType(ref block, typeof(IMyThrust)))
                     {
-                        if (Block.HasProperty(block.EntityId, "IGNORE"))
+                        if (Block.HasProperty(block.EntityId, IGNORE_TAG))
                         {
                             return false;
                         }
@@ -240,10 +240,11 @@ namespace IngameScript
                 terminalBlock = me as IMyTerminalBlock;
                 if (!Block.ValidProfile(ref terminalBlock, GridProfile.blockProfile))
                 {
-                    me.CustomName += " [" + TAG + "]";
+                    me.CustomName += " [" + MAIN_CMD_TAG + "]";
                     return;
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "Speed", ref speed))
+
+                if (Block.GetProperty(terminalBlock.EntityId, MAX_SPEED_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
@@ -254,18 +255,7 @@ namespace IngameScript
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "MaxSpeed", ref speed))
-                {
-                    if (float.TryParse(speed, out speedInt))
-                    {
-                        if (MAX_SPEED != speedInt)
-                        {
-                            MAX_SPEED = speedInt;
-                            Logger.Info("Maximum speed changed to " + MAX_SPEED);
-                        }
-                    }
-                }
-                if (Block.GetProperty(terminalBlock.EntityId, "DockingSpeed", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, DOCK_SPEED_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
@@ -276,7 +266,7 @@ namespace IngameScript
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "TaxiingSpeed", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, TAXI_SPEED_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
@@ -287,7 +277,7 @@ namespace IngameScript
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "TaxiingDistance", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, TAXI_DISTANCE_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
@@ -298,7 +288,7 @@ namespace IngameScript
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "TaxiingPanelDistance", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, TAXI_PANEL_DISTANCE_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
@@ -309,7 +299,7 @@ namespace IngameScript
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "ApproachDistance", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, APPROACH_DISTANCE_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
@@ -320,7 +310,7 @@ namespace IngameScript
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "ApproachingSpeed", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, APPROACH_SPEED_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
@@ -331,7 +321,7 @@ namespace IngameScript
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "DockDistance", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, DOCK_DISTANCE_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
@@ -342,7 +332,7 @@ namespace IngameScript
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "UndockDistance", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, UNDOCK_DISTANCE_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
@@ -353,24 +343,24 @@ namespace IngameScript
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, "Wait", ref speed))
+                if (Block.GetProperty(terminalBlock.EntityId, WAIT_TAG, ref speed))
                 {
                     if (Double.TryParse(speed, out wait))
                     {
                         Autopilot.waitTime = TimeSpan.FromSeconds(wait).Ticks;
                     }
                 }
-                gravity = Block.HasProperty(terminalBlock.EntityId, "IGNOREGRAVITY");
+                gravity = Block.HasProperty(terminalBlock.EntityId, IGNORE_GRAVITY_TAG);
                 if (gravity != Situation.ignoreGravity)
                 {
                     Situation.ignoreGravity = gravity;
                     Logger.Info("Ship orientation " + (gravity ? "ignoring" : "using") + " gravity for alignment.");
                 }
-                if (Block.HasProperty(terminalBlock.EntityId, "LIST"))
+                if (Block.HasProperty(terminalBlock.EntityId, LIST_MODE_TAG))
                 {
                     Autopilot.mode = Autopilot.Mode.LIST;
                 }
-                else if (Block.HasProperty(terminalBlock.EntityId, "LOOP"))
+                else if (Block.HasProperty(terminalBlock.EntityId, LOOP_MODE_TAG))
                 {
                     Autopilot.mode = Autopilot.Mode.LOOP;
                 }

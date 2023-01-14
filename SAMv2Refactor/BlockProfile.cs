@@ -26,17 +26,17 @@ namespace IngameScript
         { // BlockProfile
             public string[] tags;
             public string[] exclusiveTags;
-            public string[] attributes;
-            public BlockProfile(ref string[] tags, ref string[] exclusiveTags, ref string[] attributes)
+            public string[] pbAttributes;
+            public BlockProfile(ref string[] tags, ref string[] exclusiveTags, ref string[] pbAttributes)
             {
                 this.tags = tags;
                 this.exclusiveTags = exclusiveTags;
-                this.attributes = attributes;
+                this.pbAttributes = pbAttributes;
             }
 
             public string Capitalize(string str)
             {
-                foreach (string attribute in attributes)
+                foreach (string attribute in pbAttributes)
                 {
                     if (attribute.ToLower() == str.ToLower())
                     {

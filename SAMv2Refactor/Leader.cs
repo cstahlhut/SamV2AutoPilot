@@ -33,7 +33,7 @@ namespace IngameScript
             public static void ProcessLeaderMessageOnFollower(string str)
             {
                 // Check if tagged as a follower using gridName for reference, if not tag, then exit out
-                if (!Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, "Follow", ref followerGridName))
+                if (!Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, FOLLOW_TAG, ref followerGridName))
                 {
                     return;
                 }
@@ -46,7 +46,7 @@ namespace IngameScript
                     return;
                 }
                 grid = leaderGrid;
-                if (Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, "FollowFront", ref followerGridName) && double.TryParse(followerGridName, out distance))
+                if (Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, FOLLOW_FRONT_TAG, ref followerGridName) && double.TryParse(followerGridName, out distance))
                 {
                     //Logger.Info("FollowFront: " + distance.ToString());
                     offset.X = distance;
@@ -55,7 +55,7 @@ namespace IngameScript
                 {
                     offset.X = 5.0;
                 }
-                if (Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, "FollowUp", ref followerGridName) && double.TryParse(followerGridName, out distance))
+                if (Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, FOLLOW_UP_TAG, ref followerGridName) && double.TryParse(followerGridName, out distance))
                 {
                     //Logger.Info("FollowUp: " + distance.ToString());
                     offset.Z = distance;
@@ -64,7 +64,7 @@ namespace IngameScript
                 {
                     offset.Z = 5.0;
                 }
-                if (Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, "FollowRight", ref followerGridName) && double.TryParse(followerGridName, out distance))
+                if (Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, FOLLOW_RIGHT_TAG, ref followerGridName) && double.TryParse(followerGridName, out distance))
                 {
                     //Logger.Info("FollowRight: " + distance.ToString());
                     offset.Y = distance;
@@ -78,7 +78,7 @@ namespace IngameScript
             public static void AdvertiseLeader(Program program)
             {
                 // If no SAM.LEADER tag exit
-                if (!Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, "LEADER"))
+                if (!Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LEADER_TAG))
                 {
                     return;
                 }
@@ -92,7 +92,7 @@ namespace IngameScript
                 leaderGrid.pos = RemoteControl.block.CenterOfMass;
 
                 // If dont have grids name, get it
-                if (!Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, "Name", ref followerGridName))
+                if (!Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, NAME_TAG, ref followerGridName))
                 {
                     followerGridName = GridBlocks.masterProgrammableBlock.CubeGrid.CustomName;
                 }

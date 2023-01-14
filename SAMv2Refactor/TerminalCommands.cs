@@ -24,7 +24,9 @@ namespace IngameScript
     {
         private static class TerminalCommands
         { // Terminal
-            public static List<string> COMMANDS = new List<string> { "step", "run", "loop", "step conf", "run conf", "loop conf", "start", "stop" };
+            public static List<string> COMMANDS = new List<string> {
+                "step", "run", "loop", "step conf", "run conf",
+                "loop conf", "start", "stop" };
             private static string CMD = "SAMv2 cmd# ";
             private static System.Text.RegularExpressions.Regex cmdRegStr = new System.Text.RegularExpressions.Regex("^" + CMD + "\\s*([\\S ]+)\\s*$");
             private static System.Text.RegularExpressions.Regex navRegStr = new System.Text.RegularExpressions.Regex("^(\\{(\\S+)\\}){0,1}(\\[(\\S+)\\]){0,1}(\\S+)$");
@@ -63,7 +65,7 @@ namespace IngameScript
                 {
                     return;
                 }
-                if (GridBlocks.masterProgrammableBlock.CustomName.Contains("ADVERTISE") || GridBlocks.masterProgrammableBlock.CustomData.Contains("ADVERTISE"))
+                if (GridBlocks.masterProgrammableBlock.CustomName.Contains(ADVERTISE_TAG) || GridBlocks.masterProgrammableBlock.CustomData.Contains(ADVERTISE_TAG))
                 {
                     screenText = "SAMv2 " + VERSION + " \nTo use Remote Commands on servers\nYou must have an LCD with \nS.A.M.RC\nin the Custom Data.";
                     programmableBlock.GridTerminalSystem.GetBlocksOfType<IMyTextPanel>(programmableBlock.lcds);
@@ -193,7 +195,7 @@ namespace IngameScript
                 {
                     program.lcd.WriteText(Serializer.serialized, false);
                 }
-                program.IGC.SendBroadcastMessage<string>(CMD_TAG, Serializer.serialized);
+                program.IGC.SendBroadcastMessage<string>(REMOTE_CMD_TAG, Serializer.serialized);
                 screenText = "Command sent.\n Will only be successful if acknowledged...";
                 screenText = Serializer.serialized;
             }

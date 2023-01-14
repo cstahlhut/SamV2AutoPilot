@@ -209,12 +209,12 @@ namespace IngameScript
                 {
                     return;
                 }
-                program.IGC.SendBroadcastMessage<string>(CMD_RES_TAG, shipCommand);
+                program.IGC.SendBroadcastMessage<string>(REMOTE_CMD_RESPONSE_TAG, shipCommand);
             }
 
             public static string ExecuteCmd(ShipCommand shipCommand)
             {
-                if (!Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, "Name", ref myName))
+                if (!Block.GetProperty(GridBlocks.masterProgrammableBlock.EntityId, NAME_TAG, ref myName))
                 {
                     myName = GridBlocks.masterProgrammableBlock.CubeGrid.CustomName;
                 }
@@ -300,7 +300,7 @@ namespace IngameScript
                 {
                     SetMode(Mode.LIST);
                 }
-                else if (command.Contains("loop"))
+                else if (command.Contains(LOOP_MODE_TAG))
                 {
                     SetMode(Mode.LOOP);
                 }
@@ -319,23 +319,23 @@ namespace IngameScript
                 if (newMode == Mode.LIST)
                 {
                     newCustomName = newCustomName.Replace(" LOOP", "");
-                    newCustomName = newCustomName.Replace("[" + TAG, "[" + TAG + " LIST");
-                    Block.UpdateProperty(GridBlocks.masterProgrammableBlock.EntityId, "LIST", "");
-                    Block.RemoveProperty(GridBlocks.masterProgrammableBlock.EntityId, "LOOP");
+                    newCustomName = newCustomName.Replace("[" + MAIN_CMD_TAG, "[" + MAIN_CMD_TAG + " LIST");
+                    Block.UpdateProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG, "");
+                    Block.RemoveProperty(GridBlocks.masterProgrammableBlock.EntityId, LOOP_MODE_TAG);
                 }
                 else if (newMode == Mode.LOOP)
                 {
                     newCustomName = newCustomName.Replace(" LIST", "");
-                    newCustomName = newCustomName.Replace("[" + TAG, "[" + TAG + " LOOP");
-                    Block.UpdateProperty(GridBlocks.masterProgrammableBlock.EntityId, "LOOP", "");
-                    Block.RemoveProperty(GridBlocks.masterProgrammableBlock.EntityId, "LIST");
+                    newCustomName = newCustomName.Replace("[" + MAIN_CMD_TAG, "[" + MAIN_CMD_TAG + " LOOP");
+                    Block.UpdateProperty(GridBlocks.masterProgrammableBlock.EntityId, LOOP_MODE_TAG, "");
+                    Block.RemoveProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG);
                 }
                 else
                 {
                     newCustomName = newCustomName.Replace(" LIST", "");
                     newCustomName = newCustomName.Replace(" LOOP", "");
-                    Block.RemoveProperty(GridBlocks.masterProgrammableBlock.EntityId, "LOOP");
-                    Block.RemoveProperty(GridBlocks.masterProgrammableBlock.EntityId, "LIST");
+                    Block.RemoveProperty(GridBlocks.masterProgrammableBlock.EntityId, LOOP_MODE_TAG);
+                    Block.RemoveProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG);
                 }
                 GridBlocks.masterProgrammableBlock.CustomName = newCustomName;
             }

@@ -41,7 +41,7 @@ namespace IngameScript
                 }
                 if (0 == --connectAttempts)
                 {
-                    Logger.Info("Failed to dock!");
+                    Logger.Info(MSG_FAILED_TO_DOCK);
                 }
                 else
                 {
@@ -56,9 +56,9 @@ namespace IngameScript
                     return;
                 }
                 connectAttempts = 0;
-                Logger.Info("Docking successful!");
+                Logger.Info(MSG_DOCKING_SUCCESSFUL);
                 Signal.Send(Signal.SignalType.DOCK);
-                if (!Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, "NODAMPENERS"))
+                if (!Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, NO_DAMPENERS_TAG))
                 {
                     Logistics.Dampeners(false);
                 }
@@ -148,7 +148,8 @@ namespace IngameScript
                         }
                         else
                         {
-                            retractDock = Dock.NewDock(connector.OtherConnector.GetPosition(), connector.OtherConnector.WorldMatrix.Forward, connector.OtherConnector.WorldMatrix.Up, "D");
+                            retractDock = Dock.NewDock(connector.OtherConnector.GetPosition(),
+                                connector.OtherConnector.WorldMatrix.Forward, connector.OtherConnector.WorldMatrix.Up, "D");
                         }
                         Signal.Send(Signal.SignalType.UNDOCK);
                         connector.Disconnect();
@@ -165,8 +166,9 @@ namespace IngameScript
                 {
                     foreach (IMyShipConnector connector in connectors)
                     {
-                        reverse = Block.HasProperty(connector.EntityId, "REV");
-                        if (Math.Abs(Vector3D.Dot(reverse ? connector.WorldMatrix.Backward : connector.WorldMatrix.Forward, RemoteControl.block.WorldMatrix.Up)) < 0.5f)
+                        reverse = Block.HasProperty(connector.EntityId, REVERSE_CONNECTOR_TAG);
+                        if (Math.Abs(Vector3D.Dot(reverse ? connector.WorldMatrix.Backward :
+                            connector.WorldMatrix.Forward, RemoteControl.block.WorldMatrix.Up)) < 0.5f)
                         {
                             return connector;
                         }
@@ -176,8 +178,9 @@ namespace IngameScript
                 {
                     foreach (IMyShipConnector connector in connectors)
                     {
-                        reverse = Block.HasProperty(connector.EntityId, "REV");
-                        if (Vector3D.Dot(reverse ? connector.WorldMatrix.Backward : connector.WorldMatrix.Forward, -dock.posAndOrientation.forward) > 0.5f)
+                        reverse = Block.HasProperty(connector.EntityId, REVERSE_CONNECTOR_TAG);
+                        if (Vector3D.Dot(reverse ? connector.WorldMatrix.Backward :
+                            connector.WorldMatrix.Forward, -dock.posAndOrientation.forward) > 0.5f)
                         {
                             return connector;
                         }

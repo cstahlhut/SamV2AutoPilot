@@ -94,7 +94,7 @@ namespace IngameScript
                 ResetBuffers();
                 foreach (IMyTextPanel panel in GridBlocks.textPanelBlocks)
                 {
-                    if (Block.HasProperty(panel.EntityId, "Name"))
+                    if (Block.HasProperty(panel.EntityId, NAME_TAG))
                     {
                         continue;
                     }

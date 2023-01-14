@@ -98,7 +98,7 @@ namespace IngameScript
                     up = dock[0].posAndOrientation.up;
                     referenceUp = connector.WorldMatrix.Up;
                 }
-                revConnector = Block.HasProperty(connector.EntityId, "REV");
+                revConnector = Block.HasProperty(connector.EntityId, REVERSE_CONNECTOR_TAG);
                 qInitialInverse = Quaternion.Inverse(Quaternion.CreateFromForwardUp(revConnector ? connector.WorldMatrix.Backward : connector.WorldMatrix.Forward, referenceUp));
                 qFinal = Quaternion.CreateFromForwardUp(-dock[0].posAndOrientation.forward, up);
                 qDiff = qFinal * qInitialInverse;
