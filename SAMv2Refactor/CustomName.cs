@@ -87,7 +87,9 @@ namespace IngameScript
                     attributePair = subTag.Split(attributeSeparator);
                     if (attributePair.Count() > 1)
                     {
-                        attributeCap = profile.Capitalize(attributePair[0]);
+                        //attributeCap = profile.Capitalize(attributePair[0]);
+                        attributeCap = Helper.Capitalize(attributePair[0]);
+                        
                         if (attributeCap != "")
                         {
                             Block.UpdateProperty(entityId, attributeCap, attributePair[1]);

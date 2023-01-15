@@ -63,6 +63,7 @@ namespace IngameScript
             private static bool chargeDone;
             private static bool cargoDone;
 
+
             public static void AutopilotTick()
             {
                 // Autopilot Tick (used to be Commander)
@@ -320,6 +321,7 @@ namespace IngameScript
                 {
                     newCustomName = newCustomName.Replace(" LOOP", "");
                     newCustomName = newCustomName.Replace("[" + MAIN_CMD_TAG, "[" + MAIN_CMD_TAG + " LIST");
+
                     Block.UpdateProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG, "");
                     Block.RemoveProperty(GridBlocks.masterProgrammableBlock.EntityId, LOOP_MODE_TAG);
                 }
@@ -327,6 +329,7 @@ namespace IngameScript
                 {
                     newCustomName = newCustomName.Replace(" LIST", "");
                     newCustomName = newCustomName.Replace("[" + MAIN_CMD_TAG, "[" + MAIN_CMD_TAG + " LOOP");
+
                     Block.UpdateProperty(GridBlocks.masterProgrammableBlock.EntityId, LOOP_MODE_TAG, "");
                     Block.RemoveProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG);
                 }
@@ -334,6 +337,7 @@ namespace IngameScript
                 {
                     newCustomName = newCustomName.Replace(" LIST", "");
                     newCustomName = newCustomName.Replace(" LOOP", "");
+
                     Block.RemoveProperty(GridBlocks.masterProgrammableBlock.EntityId, LOOP_MODE_TAG);
                     Block.RemoveProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG);
                 }

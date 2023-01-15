@@ -33,7 +33,7 @@ namespace IngameScript
         // to learn more about ingame scripts.
 
         // Sam's Autopilot Manager
-        public static string VERSION = "2.TC1.7";
+        public static string VERSION = "3.CS.1";
 
         //
         // Original Creator: Sam (Magistrator)
@@ -74,17 +74,29 @@ namespace IngameScript
         // -------------------------------------------------------
         private static float HORIZONT_CHECK_DISTANCE = 2000.0f; // How far the script will check for obstacles.
 
-        private static float MAX_SPEED = 95.0f; // Used for NAVIGATING and CONVERGING.
-        private static float APPROACHING_SPEED = 95.0f;
-        private static float TAXIING_SPEED = 10.0f;
-        private static float DOCKING_SPEED = 2.5f;
+        private static float MAX_SPEED = 95.0f; // Speed for NAVIGATING and CONVERGING.
+                                                // (this is done during collision
+                                                //avoidance, not actually top speed)
+        private static float APPROACH_DISTANCE = 50.0f; // Ship will start approach mode at this distance.
+                                                        //How close to approach the runway/landing pad
+        private static float APPROACH_SPEED = 25.0f; //how fast the ship moves to get to the docking height
+        private static float DOCKING_DISTANCE = 10.0f; // Ship will start docking at this distance.
+        private static float DOCKING_PANEL_DISTANCE = 5.0f; // When using Path-Docking, the distance from the panel.
+        private static float DOCK_SPEED = 1.0f; //Ship speed when in docking or undocking mode
+        private static float UNDOCK_DISTANCE = 10.0f; // How far to move from connector when undocking
+        
+        private static float APPROACH_SAFE_DISTANCE = 5.0f; //how far away the ship hovers from the taxi points (Tag: Taxi_distance)
+        private static float CONVERGING_SPEED = 100f; //How fast the ship should go when no objects are in the ship's path
 
-        private static float APPROACH_DISTANCE = 500.0f; // Ship will start approach mode at this distance.
-        private static float TAXIING_DISTANCE = 10.0f; // How close will the ship get before starting the docking procedure.
-        private static float TAXIING_PANEL_DISTANCE = 5.0f; // When using Path-Docking, the distance from the panel.
-        private static float DOCK_DISTANCE = 5.0f; // Ship will start docking at this distance.
-        private static float UNDOCK_DISTANCE = 10.0f; // Ship will undock to this distance.
-
+        private static float TAXIING_SPEED = 2.0f;
+        private static float ARRIVAL_DISTANCE = 500.0f; // Distance to which the ship must slow down when arriving to its destination
+                                                        // ^^ This should be adjusted to increase if your ship can't brake as fast
+        private static float ARRIVAL_SPEED = 10.0f; //Speed of which the which the ship should go when closing in to destination (low speed recommended)
+        private static float COLLISION_CORRECTION_ANGLE = (float)Math.PI / 7.5f;
+        private static float BRAKE_THRUST_TRIGGER_DIFFERENCE = 3.0f; //the threshold on which the ship hard brakes when going too fast
+        private static float ESCAPE_NOSE_UP_ELEVATION = 2000.0f;
+        private static string CHARGE_TARGET_GROUP_NAME = "Charge Target";
+        private static int DOCK_ATTEMPTS = 5;
         private static int LOG_MAX_LINES = 30;
 
         // -------------------------------------------------------
@@ -170,36 +182,99 @@ namespace IngameScript
         // -------------------------------------------------------
         // Avoid touching anything below this. Things will break.
         // -------------------------------------------------------
-        private static string CHARGE_TARGET_GROUP_NAME = "Charge Target";
+
+        private static string MSG_ALIGNING = "aligning...";
+        private static string MSG_DOCKING = "docking...";
+        private static string MSG_UNDOCKING = "undocking...";
+        private static string MSG_CONVERGING = "converging...";
+        private static string MSG_APPROACHING = "approaching...";
+        private static string MSG_NAVIGATING = "navigating...";
+        private static string MSG_TAXIING = "taxiing...";
+        private static string MSG_NAVIGATING_TO = "Navigating to";
+        private static string MSG_CRUISING_AT = "cruising at {0:N} m, climbing at {1:N0}°...";
+        private static string MSG_NAVIGATION_TO_WAYPOINT = "Navigating to coordinates";
+        private static string MSG_NAVIGATION_SUCCESSFUL = "Navigation successful!";
+        private static string MSG_NO_CONNECTORS_AVAILABLE = "No connectors available!";
+        private static string MSG_FAILED_TO_DOCK = "Failed to dock!";
+        private static string MSG_DOCKING_SUCCESSFUL = "Docking successful!";
+        private static string MSG_NO_REMOTE_CONTROL = "No Remote Control Found!";
+        private static string MSG_INVALID_GPS_TYPE = "Invalid GPS format! GPS can also not be 0:0:0!";
+
+        #region Tags
+        /*
+        ***************************************************************
+        ALL TAGS MUST BE UPPERCASE DUE TO REGEX MATCHING AND CONVERSION
+        ***************************************************************
+        */
+        private const string NAME_TAG = "NAME";
+        private const string ADVERTISE_TAG = "ADVERTISE";
+        private const string IGNORE_TAG = "IGNORE";
+        private const string MAIN_CONNECTOR_TAG = "MAIN";
+        //Some modded connectors are placed backwards to work for some reason. It confuses this script.
+        //^^ If the connector goes on backwards, add this tag to the connector to work around that.
+        private const string CONNECTOR_REVERSE_TAG = "REV"; 
+        private const string LIST_MODE_TAG = "LIST";
+        private const string LOOP_MODE_TAG = "LOOP";
+        private const string WAIT_TAG = "WAIT";
+        private const string AGGRO_TAG = "AGGRO";
+        private const string MASS_EXCESS_TAG = "MASS_EXCESS";
+        private const string EFFECTIVE_THRUST_TAG = "EFFECTIVE_THRUST";
+        private const string MAX_SPEED_TAG = "MAX_SPEED";
+        private const string IGNORE_GRAVITY_TAG = "IGNORE_GRAVITY";
+        private const string NO_DAMPENERS_TAG = "NO_DAMPENERS";
+        private const string FOLLOW_TAG = "FOLLOW";
+        private const string FOLLOW_FRONT_TAG = "FOLLOW_FRONT";
+        private const string FOLLOW_UP_TAG = "FOLLOW_UP";
+        private const string FOLLOW_RIGHT_TAG = "FOLLOW_RIGHT";
+        private const string TAXI_SPEED_TAG = "TAXI_SPEED";
+        private const string TAXI_DISTANCE_TAG = "TAXI_DISTANCE";
+        private const string TAXI_PANEL_DISTANCE_TAG = "TAXI_PANEL_DISTANCE";
+        private const string APPROACH_DISTANCE_TAG = "APPROACH_DISTANCE";
+        private const string DOCK_DISTANCE_TAG = "DOCK_DISTANCE";
+        private const string DOCK_SPEED_TAG = "DOCK_SPEED";
+        private const string UNDOCK_DISTANCE_TAG = "UNDOCK_DISTANCE";
+        private const string APPROACH_SPEED_TAG = "APPROACH_SPEED";
+        private const string CONVERGING_SPEED_TAG = "CONVERGING_SPEED";
+        private const string ARRIVAL_DISTANCE_TAG = "ARRIVAL_DISTANCE";
+        private const string ARRIVAL_SPEED_TAG = "ARRIVAL_SPEED"; 
+        private const string ESCAPE_NOSE_UP_TAG = "ESCAPE_NOSE_UP";
+        private const string ESCAPE_NOSE_UP_ELEVATION_TAG = "NOSE_UP_ELEVATION";
+        private const string DESCEND_NOSE_DOWN_ELEVATION_TAG = "NOSE_DOWN_ELEVATION";
+        // Slows the ship to taxiing speed when closing in onto the runway or docking connector
+        private const string SLOW_ON_APPROACH_TAG = "SLOW_ON_APPROACH"; 
+        // In space, should the ship point directly at the destination on navigation started before taking off?
+        // Use the BuildInfo mod to make sure that this is the case.
+        private const string ALLOW_DIRECT_ALIGNMENT_TAG = "ALLOW_DIRECT_ALIGNMENT"; 
+        private const string AUTO_CRUISE_ATTRIBUTE = "AUTO_CRUISE";
+        private static string REMOTE_CMD_TAG = MAIN_CMD_TAG + "CMD";
+        private static string REMOTE_CMD_RESPONSE_TAG = MAIN_CMD_TAG + "CMD_RESPONSE";
+        private static string LEADER_TAG = MAIN_CMD_TAG + "LEADER";
+        #endregion
 
         private static float DISTANCE_CHECK_TOLERANCE = 0.15f; // Script will assume the ship has reached the target position once the distance is lower than this.
         private static double ROTATION_CHECK_TOLERANCE = 0.015; // Scrip will assume the ship has reached the target rotation once the rotation thresholds are lower than this.
-        private static float COLLISION_CORRECTION_ANGLE = (float)Math.PI / 7.5f;
-        private static float BRAKE_THRUST_TRIGGER_DIFFERENCE = 3.0f; //the threshold on which the ship hard brakes when going too fast
-        //VV If enabled, this will be the ground-to-air elevation at which the nose will point toward the target when leaving the atmosphere
-        private static float ESCAPE_NOSE_UP_ELEVATION = 2000.0f;
-
         private static float HORIZONT_CHECK_ANGLE_LIMIT = (float)Math.PI / 32.0f;
         private static float HORIZONT_CHECK_ANGLE_STEP = (float)Math.PI / 75.0f;
         private static float HORIZONT_MAX_UP_ANGLE = (float)Math.PI;
-        private static float COLLISION_DISABLE_RADIUS_MULTIPLIER = 2.0f;
-
+        private static float COLLISION_DISABLE_RADIUS_MULTIPLIER = 3.0f;
+        private static float IDLE_POWER = 0.0000001f;
         private static double GYRO_GAIN = 1.0;
         private static double GYRO_MAX_ANGULAR_VELOCITY = Math.PI;
         private static float GUIDANCE_MIN_AIM_DISTANCE = 0.5f;
         private static float DISTANCE_TO_GROUND_IGNORE_PLANET = 1.2f * HORIZONT_CHECK_DISTANCE;
-        private static int DOCK_ATTEMPTS = 5;
+        private static float MAX_TRUST_UNDERESTIMATE_PERCENTAGE = 0.90f;
+        
         private static string ADVERT_ID = "SAMv2";
         private static string ADVERT_ID_VER = "SAMv2V";
         private static string STORAGE_VERSION = "deadbeef";
-        
+
         private List<IMyTextPanel> lcds = new List<IMyTextPanel>();
         private IMyTextPanel lcd;
         private bool lcdfound = false;
-        private static float IDLE_POWER = 0.0000001f;
+        
         private static double TICK_TIME = 0.166666f;
         private static double FOLLOWER_DISTANCE_FROM_LEADER = 1.66666f; // Seems to have something to do with how quickly followers react to leader movements
-
+        
         private IMyBroadcastListener listener;
         private IMyBroadcastListener cmdListener;
         private IMyBroadcastListener cmdResListener;
@@ -658,41 +733,73 @@ namespace IngameScript
             }
         }
 
+        List<IMyTimerBlock> timers = new List<IMyTimerBlock>();
         private void SendSignals()
         {
             if (Signal.list.Count == 0)
             {
+                Signal.signalAttempt = Signal.SIGNAL_MAX_ATTEMPTS;
                 return;
             }
-            foreach (IMyTimerBlock block in GridBlocks.timerBlocks)
+            bool sentSignal = false;
+            timers.Clear();
+            GridTerminalSystem.GetBlocksOfType<IMyTimerBlock>(timers);
+            foreach (IMyTimerBlock timer in timers)
             {
-                if (Block.HasProperty(block.EntityId, "DOCKED") && Signal.list.ContainsKey(Signal.SignalType.DOCK))
+                foreach (var timerBlock in GridBlocks.timerBlocks)
                 {
-                    Signal.list[Signal.SignalType.DOCK] = 0;
-                    Logger.Info("Timer triggered due to Docking accomplished");
-                    block.StartCountdown();
-                }
-                if (Block.HasProperty(block.EntityId, "UNDOCKED") && Signal.list.ContainsKey(Signal.SignalType.UNDOCK))
-                {
-                    Signal.list[Signal.SignalType.UNDOCK] = 0;
-                    Logger.Info("Timer triggered due to Undocking sequence");
-                    block.StartCountdown();
-                }
-                if (Block.HasProperty(block.EntityId, "NAVIGATED") && Signal.list.ContainsKey(Signal.SignalType.NAVIGATION))
-                {
-                    Signal.list[Signal.SignalType.NAVIGATION] = 0;
-                    Logger.Info("Timer triggered due to Navigation finished");
-                    block.StartCountdown()
-;
-                }
-                if (Block.HasProperty(block.EntityId, "STARTED") && Signal.list.ContainsKey(Signal.SignalType.START))
-                {
-                    Signal.list[Signal.SignalType.START] = 0;
-                    Logger.Info("Timer triggered due to Navigation started");
-                    block.StartCountdown();
+                    if (timer.EntityId == timerBlock.EntityId)
+                    {
+                        if (Block.HasProperty(timerBlock.EntityId, "DOCKED")
+                        && Signal.list.Contains(Signal.SignalType.DOCK))
+                        {
+                            Logger.Info("Timer started due to Docking accomplished");
+                            timer.StartCountdown();
+                            sentSignal = true;
+                            //timer.ApplyAction("Start");
+                        }
+                        if (Block.HasProperty(timerBlock.EntityId, "NAVIGATED") 
+                            && Signal.list.Contains(Signal.SignalType.NAVIGATION))
+                        {
+                            Logger.Info("Timer started due to Navigation finished");
+                            //timer.ApplyAction("Start");
+                            timer.StartCountdown();
+                            sentSignal = true;
+                        }
+                        if (Block.HasProperty(timerBlock.EntityId, "STARTED") 
+                            && Signal.list.Contains(Signal.SignalType.START))
+                        {
+                            Logger.Info("Timer started due to Navigation start");
+                            timer.StartCountdown();
+                            sentSignal = true;
+                        }
+                        if (Block.HasProperty(timerBlock.EntityId, "UNDOCKED") 
+                            && Signal.list.Contains(Signal.SignalType.UNDOCK))
+                        {
+                            Logger.Info("Timer triggered due to undocking started");
+                            timer.Trigger();
+                            sentSignal = true;
+                        }
+                        if (Block.HasProperty(timerBlock.EntityId, "APPROACHING") 
+                            && Signal.list.Contains(Signal.SignalType.APPROACH))
+                        {
+                            Logger.Info("Timer started due to approaching destination");
+                            timer.StartCountdown();
+                            sentSignal = true;
+                        }
+                    }
                 }
             }
-            Signal.UpdateSignals();
+            if (sentSignal || Signal.signalAttempt == 0)
+            {
+                Signal.list.Clear();
+                Signal.signalAttempt = Signal.SIGNAL_MAX_ATTEMPTS;
+                Logger.Info("Sent all queued signals");
+            }
+            else
+            {
+                Signal.signalAttempt--;
+            }
         }
     }
 }

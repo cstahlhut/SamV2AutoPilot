@@ -157,7 +157,8 @@ namespace IngameScript
                     if (Block.HasProperty(shipConnector.EntityId, MAIN_CONNECTOR_TAG))
                     {
                         mainShipConnectorBlocks.Add(shipConnector);
-                        GridBlocks.UpdateCount("MAIN " + block.DefinitionDisplayNameText);
+                        GridBlocks.UpdateCount(MAIN_CONNECTOR_TAG 
+                            + " " + block.DefinitionDisplayNameText);
                     }
                 }
                 else if ((textPanel = block as IMyTextPanel) != null)
@@ -243,7 +244,6 @@ namespace IngameScript
                     me.CustomName += " [" + MAIN_CMD_TAG + "]";
                     return;
                 }
-
                 if (Block.GetProperty(terminalBlock.EntityId, MAX_SPEED_TAG, ref speed))
                 {
                     if (float.TryParse(speed, out speedInt))
@@ -261,8 +261,8 @@ namespace IngameScript
                     {
                         if (DOCKING_SPEED != speedInt)
                         {
-                            DOCKING_SPEED = speedInt;
-                            Logger.Info("Docking speed changed to " + DOCKING_SPEED);
+                            DOCK_SPEED = speedInt;
+                            Logger.Info("Docking speed changed to " + DOCK_SPEED);
                         }
                     }
                 }
@@ -281,10 +281,10 @@ namespace IngameScript
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
-                        if (TAXIING_DISTANCE != (float)speedInt)
+                        if (DOCKING_DISTANCE != (float)speedInt)
                         {
-                            TAXIING_DISTANCE = (float)speedInt;
-                            Logger.Info("Taxiing distance changed to " + TAXIING_DISTANCE);
+                            DOCKING_DISTANCE = (float)speedInt;
+                            Logger.Info("Taxi distance changed to " + DOCKING_DISTANCE);
                         }
                     }
                 }
@@ -292,10 +292,10 @@ namespace IngameScript
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
-                        if (TAXIING_PANEL_DISTANCE != (float)speedInt)
+                        if (DOCKING_PANEL_DISTANCE != (float)speedInt)
                         {
-                            TAXIING_PANEL_DISTANCE = (float)speedInt;
-                            Logger.Info("Taxiing panel distance changed to " + TAXIING_PANEL_DISTANCE);
+                            DOCKING_PANEL_DISTANCE = (float)speedInt;
+                            Logger.Info("Taxi panel distance changed to " + DOCKING_PANEL_DISTANCE);
                         }
                     }
                 }
@@ -314,10 +314,10 @@ namespace IngameScript
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
-                        if (APPROACHING_SPEED != speedInt)
+                        if (APPROACH_SPEED != speedInt)
                         {
-                            APPROACHING_SPEED = speedInt;
-                            Logger.Info("Approaching speed changed to " + APPROACHING_SPEED);
+                            APPROACH_SPEED = speedInt;
+                            Logger.Info("Approaching speed changed to " + APPROACH_SPEED);
                         }
                     }
                 }
@@ -325,10 +325,10 @@ namespace IngameScript
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
-                        if (DOCK_DISTANCE != (float)speedInt)
+                        if (DOCKING_DISTANCE != (float)speedInt)
                         {
-                            DOCK_DISTANCE = (float)speedInt;
-                            Logger.Info("Docking distance changed to " + DOCK_DISTANCE);
+                            DOCKING_DISTANCE = (float)speedInt;
+                            Logger.Info("Docking distance changed to " + DOCKING_DISTANCE);
                         }
                     }
                 }
@@ -401,11 +401,13 @@ namespace IngameScript
                 else if (Block.HasProperty(terminalBlock.EntityId, LOOP_MODE_TAG))
                 {
                     Autopilot.mode = Autopilot.Mode.LOOP;
+                    //Logger.Info("Running in LOOP mode");
                 }
                 else
                 {
                     Autopilot.mode = Autopilot.Mode.SINGLE;
                     Autopilot.active = false;
+                    //Logger.Info("Running in SINGLE mode");
                 }
             }
 

@@ -24,7 +24,8 @@ namespace IngameScript
     {
         private static class RemoteControl
         { // RemoteControl
-            public static IMyRemoteControl block = null; public static bool Present()
+            public static IMyRemoteControl block = null; 
+            public static bool Present()
             {
                 return block != null;
             }
@@ -35,7 +36,7 @@ namespace IngameScript
                 {
                     return true;
                 }
-                Logger.Err("No Remote Control!");
+                Logger.Err(MSG_NO_REMOTE_CONTROL);
                 return false;
             }
         }

@@ -27,9 +27,9 @@ namespace IngameScript
             private static string valStr;
             private static float valFloat;
 
-            public static void Dampeners(bool enable)
+            public static void Dampeners(bool enabled)
             {
-                RemoteControl.block.DampenersOverride = enable;
+                RemoteControl.block.DampenersOverride = enabled;
             }
 
             private static List<IMyGasTank> tempTanks = new List<IMyGasTank>();

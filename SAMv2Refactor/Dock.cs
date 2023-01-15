@@ -53,7 +53,6 @@ namespace IngameScript
                 return dock;
             }
 
-
             public PositionAndOrientation posAndOrientation;
             public List<VectorPath> approachPath = new List<VectorPath>();
             public VRage.Game.MyCubeSize cubeSize;

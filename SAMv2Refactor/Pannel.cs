@@ -87,7 +87,8 @@ namespace IngameScript
 
             public static void Print()
             {
-                if (GridBlocks.textPanelBlocks.Count() == 0 && GridBlocks.cockpitBlocks.Count() == 0)
+                if (GridBlocks.textPanelBlocks.Count() == 0 &&
+                    GridBlocks.cockpitBlocks.Count() == 0)
                 {
                     return;
                 }

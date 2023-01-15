@@ -49,20 +49,23 @@ namespace IngameScript
                 entityId = block.EntityId;
                 foreach (string line in lines)
                 {
+                    
                     trim = line.Trim();
                     if (trim == "") // No tags found skip over block
                     {
                         continue;
                     }
+                    
                     match = customDataRegex.Match(trim);
-                    matched = match.Success || matched;
-                    if (match.Groups.Count == 4)
+                    matched = match.Success || matched; // Check its a SAM command format in CustomData
+
+                    if (match.Groups.Count == 4) // Additional Check on group count 
                     {
                         if (match.Groups[1].Value != "") // Check if anything after MAIN_CMD_TAG
                         {
                             if (match.Groups[3].Value != "") // Not sure
                             {
-                                attributeCap = blockProfile.Capitalize(match.Groups[1].Value);
+                                attributeCap = Helper.Capitalize(match.Groups[1].Value);
                                 if (attributeCap != "")
                                 {
                                     value = match.Groups[3].Value;
@@ -71,6 +74,7 @@ namespace IngameScript
                                     continue;
                                 }
                             }
+                            
                             else
                             {
                                 // Convert all entered commands to upper case for matching
@@ -95,7 +99,8 @@ namespace IngameScript
                                 continue;
                             }
                         }
-                        build += MAIN_CMD_TAG + ".\n";
+                        // If just MAIN_CMD_TAG, add a . and go to next line?
+                        build += MAIN_CMD_TAG + ".\n"; 
                         continue;
                     }
                     else

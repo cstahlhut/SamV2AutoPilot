@@ -65,7 +65,6 @@ namespace IngameScript
                             {
                                 return "[LOOP][WAIT=10] " + MSG_ALIGNING;
                             }
-
                         }
                         else if (GridBlocks.masterProgrammableBlock != null
                             && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG))
@@ -173,8 +172,7 @@ namespace IngameScript
                         return "following...";
                     case wpType.HOPPING:
                         return "hopping...";
-                    default:
-                        break;
+                    default: break;
                 }
                 return "Testing...";
             }
@@ -202,7 +200,7 @@ namespace IngameScript
                 GPS gps = new GPS(coordinates);
                 Waypoint wp = new Waypoint(new PositionAndOrientation(
                     Helper.UnserializeVector(coordinates), Vector3D.Zero,
-                    Vector3D.Zero), APPROACHING_SPEED, wpType.APPROACHING);
+                    Vector3D.Zero), CONVERGING_SPEED, wpType.CONVERGING);
                 return wp;
                 //return new Waypoint(new PositionAndOrientation(gps.pos, Vector3D.Zero, Vector3D.Zero),
                 //    MAX_SPEED, wpType.CONVERGING);

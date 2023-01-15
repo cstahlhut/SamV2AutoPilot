@@ -85,7 +85,8 @@ namespace IngameScript
                 {
                     return;
                 }
-                if (GridBlocks.shipConnectorBlocks.Count() == 0 || GridBlocks.shipConnectorBlocks.Count() == GridBlocks.mainShipConnectorBlocks.Count())
+                if (GridBlocks.shipConnectorBlocks.Count() == 0 
+                    || GridBlocks.shipConnectorBlocks.Count() == GridBlocks.mainShipConnectorBlocks.Count())
                 {
                     return;
                 }

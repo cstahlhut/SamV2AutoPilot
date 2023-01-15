@@ -34,6 +34,7 @@ namespace IngameScript
                 this.pbAttributes = pbAttributes;
             }
 
+            // Not used
             public string Capitalize(string str)
             {
                 foreach (string attribute in pbAttributes)

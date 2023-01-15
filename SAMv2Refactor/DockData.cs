@@ -94,7 +94,7 @@ namespace IngameScript
             {
                 if (RemoteControl.block == null)
                 {
-                    Logger.Err("No Remote Control");
+                    Logger.Err(MSG_NO_REMOTE_CONTROL);
                     return;
                 }
                 Vector3D gravity = RemoteControl.block.GetNaturalGravity();
@@ -119,7 +119,7 @@ namespace IngameScript
             {
                 if (RemoteControl.block == null)
                 {
-                    Logger.Err("No Remote Control");
+                    Logger.Err(MSG_NO_REMOTE_CONTROL);
                     return;
                 }
                 Vector3D pos = RemoteControl.block.CenterOfMass;

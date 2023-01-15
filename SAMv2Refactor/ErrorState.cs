@@ -28,7 +28,9 @@ namespace IngameScript
             {
                 TooManyControllers, NoRemoteController
             };
-            private static Dictionary<Type, bool> errorState = new Dictionary<Type, bool> { };
+            private static Dictionary<Type, bool> errorState = new Dictionary<Type, bool> {
+                { Type.TooManyControllers, false }
+            };
             public static void Set(Type type)
             {
                 errorState[type] = true;

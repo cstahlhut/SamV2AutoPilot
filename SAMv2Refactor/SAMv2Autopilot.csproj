@@ -55,6 +55,7 @@
     <Compile Include="NavCmd.cs" />
     <Compile Include="PositionAndOrientation.cs" />
     <Compile Include="Data.cs" />
+    <Compile Include="TimeStats.cs" />
     <Compile Include="VectorPath.cs" />
     <Compile Include="Terminal.cs" />
     <Compile Include="Waypoint.cs" />
