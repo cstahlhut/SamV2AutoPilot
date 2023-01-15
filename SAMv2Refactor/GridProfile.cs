@@ -1,22 +1,7 @@
-﻿using Sandbox.Game.EntityComponents;
-using Sandbox.ModAPI.Ingame;
-using Sandbox.ModAPI.Interfaces;
+﻿using Sandbox.ModAPI.Ingame;
 using SpaceEngineers.Game.ModAPI.Ingame;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using VRage;
-using VRage.Collections;
-using VRage.Game;
-using VRage.Game.Components;
-using VRage.Game.GUI.TextPanel;
-using VRage.Game.ModAPI.Ingame;
-using VRage.Game.ModAPI.Ingame.Utilities;
-using VRage.Game.ObjectBuilders.Definitions;
-using VRageMath;
 
 namespace IngameScript
 {
@@ -26,7 +11,7 @@ namespace IngameScript
         { // Profiles
             private static string[] empty = new string[] { };
             private static string[] ignore = new string[] { IGNORE_TAG };
-            
+
             private static string[] meTags = new string[] { "DEBUG", ADVERTISE_TAG, ESCAPE_NOSE_UP_TAG,
                 SLOW_ON_APPROACH_TAG, ALLOW_DIRECT_ALIGNMENT_TAG, NO_DAMPENERS_TAG, IGNORE_GRAVITY_TAG,
                 LEADER_TAG };
@@ -54,7 +39,7 @@ namespace IngameScript
             public static string[] capacity = new string[] { "Full", "Empty" };
             private static string[] batteryTags = new string[] { "FORCE" };
             private static string[] gastankTags = new string[] { "FORCE", "CARGO" };
-            
+
             // ** IN SC this is 'me' **
             public static BlockProfile blockProfile = new BlockProfile(ref meTags, ref exclusiveTags, ref pbAttributes);
             public static Dictionary<Type, BlockProfile> blockProfileDict = new Dictionary<Type, BlockProfile>{{typeof(IMyProgrammableBlock),blockProfile},

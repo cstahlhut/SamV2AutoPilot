@@ -1,21 +1,6 @@
-﻿using Sandbox.Game.EntityComponents;
-using Sandbox.ModAPI.Ingame;
-using Sandbox.ModAPI.Interfaces;
-using SpaceEngineers.Game.ModAPI.Ingame;
+﻿using Sandbox.ModAPI.Ingame;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using VRage;
-using VRage.Collections;
-using VRage.Game;
-using VRage.Game.Components;
-using VRage.Game.GUI.TextPanel;
-using VRage.Game.ModAPI.Ingame;
-using VRage.Game.ModAPI.Ingame.Utilities;
-using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
 
 namespace IngameScript
@@ -69,7 +54,7 @@ namespace IngameScript
                     running = false;
                     return;
                 }
-                Navigation.Tick();
+                Navigation.NavigationTick();
 
                 //****************** If script breaks, remove if below ***********************
                 // (was before Navigation.Tick())
@@ -108,15 +93,15 @@ namespace IngameScript
                 bool reversedConnector = Block.HasProperty(connector.EntityId, CONNECTOR_REVERSE_TAG);
                 Situation.RefreshParameters();
                 connectorToCenter = Situation.position - connector.GetPosition();
-                if ((Situation.inGravity || Situation.turnNoseUp) 
+                if ((Situation.inGravity || Situation.turnNoseUp)
                     && Math.Abs(Vector3D.Dot(dock[0].posAndOrientation.forward,
                     Situation.gravityUpVector)) < 0.5f)
                 {
                     up = Situation.gravityUpVector;
                     referenceUp = connector.WorldMatrix.GetDirectionVector(
                         connector.WorldMatrix.GetClosestDirection(up));
-                    referenceUp = (referenceUp == connector.WorldMatrix.Forward 
-                        || referenceUp == connector.WorldMatrix.Backward) 
+                    referenceUp = (referenceUp == connector.WorldMatrix.Forward
+                        || referenceUp == connector.WorldMatrix.Backward)
                         ? connector.WorldMatrix.Up : referenceUp;
                 }
                 else
@@ -125,7 +110,7 @@ namespace IngameScript
                     referenceUp = connector.WorldMatrix.Up;
                 }
                 qInitialInverse = Quaternion.Inverse(Quaternion.CreateFromForwardUp(
-                    !reversedConnector ? connector.WorldMatrix.Forward 
+                    !reversedConnector ? connector.WorldMatrix.Forward
                     : connector.WorldMatrix.Backward, referenceUp));
                 qFinal = Quaternion.CreateFromForwardUp(-dock[0].posAndOrientation.forward, up);
                 qDiff = qFinal * qInitialInverse;
@@ -133,12 +118,12 @@ namespace IngameScript
                 newForward = Vector3D.Transform(RemoteControl.block.WorldMatrix.Forward, qDiff);
                 newUp = Vector3D.Transform(RemoteControl.block.WorldMatrix.Up, qDiff);
                 connectorDistance = (dock[0].cubeSize == VRage.Game.MyCubeSize.Large) ? 2.6f / 2.0f : 0.5f;
-                connectorDistance += (connector.CubeGrid.GridSizeEnum == 
+                connectorDistance += (connector.CubeGrid.GridSizeEnum ==
                     VRage.Game.MyCubeSize.Large) ? 2.6f / 2.0f : 0.5f;
-                newPos = dock[0].posAndOrientation.position + rotatedConnectorToCenter 
+                newPos = dock[0].posAndOrientation.position + rotatedConnectorToCenter
                     + (connectorDistance * dock[0].posAndOrientation.forward);
                 Navigation.AddWaypoint(newPos, newForward, newUp, DOCK_SPEED, Waypoint.wpType.DOCKING);
-                newPos = dock[0].posAndOrientation.position + rotatedConnectorToCenter 
+                newPos = dock[0].posAndOrientation.position + rotatedConnectorToCenter
                     + ((DOCKING_DISTANCE + connectorDistance) * dock[0].posAndOrientation.forward);
                 Navigation.AddWaypoint(newPos, newForward, newUp, APPROACH_SPEED, Waypoint.wpType.APPROACHING);
                 dock[0].approachPath.Reverse();
@@ -175,7 +160,7 @@ namespace IngameScript
                     }
                     else
                     {
-                        newPos = dock.approachPath[0].position + ((APPROACH_DISTANCE + Situation.radius) 
+                        newPos = dock.approachPath[0].position + ((APPROACH_DISTANCE + Situation.radius)
                             * dock.approachPath[0].direction);
                     }
                     Navigation.AddWaypoint(newPos, Vector3D.Zero, Vector3D.Zero, CONVERGING_SPEED, wpType);
@@ -212,14 +197,14 @@ namespace IngameScript
                     //*************************** Remove Below line if breaks *****************************//
                     Vector3D taxiBeginUnadjustedPos =
                         disconnectDock.approachPath[disconnectDock.approachPath.Count - 1].position;
-                    Vector3D taxiBeginPos = taxiBeginUnadjustedPos 
-                        + (disconnectDock.approachPath[disconnectDock.approachPath.Count - 1].direction 
+                    Vector3D taxiBeginPos = taxiBeginUnadjustedPos
+                        + (disconnectDock.approachPath[disconnectDock.approachPath.Count - 1].direction
                         * (APPROACH_SAFE_DISTANCE + Situation.radius));
-                    Vector3D taxiEndPos = disconnectDock.approachPath[0].position 
-                        + (disconnectDock.approachPath[0].direction 
+                    Vector3D taxiEndPos = disconnectDock.approachPath[0].position
+                        + (disconnectDock.approachPath[0].direction
                         * (APPROACH_SAFE_DISTANCE + Situation.radius)); //end taxi way pos
-                                                                                                                                                                              //"Vector3D newPos" is still the destination
-                                                                                                                                                                              //*************************** Remove Below 2 lines if breaks *****************************//
+                                                                        //"Vector3D newPos" is still the destination
+                                                                        //*************************** Remove Below 2 lines if breaks *****************************//
                     Vector3D direction2 = Vector3D.Normalize(newPos - taxiBeginPos);
                     Vector3D balancedDirection2 = Vector3D.ProjectOnPlane(ref direction2,
                         ref Situation.gravityUpVector);
@@ -281,7 +266,7 @@ namespace IngameScript
                 {
                     foreach (VectorPath vp in disconnectDock.approachPath)
                     {
-                        newPos = vp.position + (vp.direction 
+                        newPos = vp.position + (vp.direction
                             * (APPROACH_SAFE_DISTANCE + Situation.radius));
                         Navigation.AddWaypoint(newPos, Vector3D.Zero, Vector3D.Zero,
                             TAXIING_SPEED, Waypoint.wpType.TAXIING);

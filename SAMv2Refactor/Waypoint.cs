@@ -1,21 +1,4 @@
-﻿using Sandbox.Game.EntityComponents;
-using Sandbox.ModAPI.Ingame;
-using Sandbox.ModAPI.Interfaces;
-using SpaceEngineers.Game.ModAPI.Ingame;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using VRage;
-using VRage.Collections;
-using VRage.Game;
-using VRage.Game.Components;
-using VRage.Game.GUI.TextPanel;
-using VRage.Game.ModAPI.Ingame;
-using VRage.Game.ModAPI.Ingame.Utilities;
-using VRage.Game.ObjectBuilders.Definitions;
+﻿using System;
 using VRageMath;
 
 namespace IngameScript
@@ -31,7 +14,7 @@ namespace IngameScript
             {
                 ALIGNING = 1 << 0, DOCKING = 1 << 1, UNDOCKING = 1 << 2,
                 CONVERGING = 1 << 3, APPROACHING = 1 << 4, NAVIGATING = 1 << 5,
-                TESTING = 1 << 6, TAXIING = 1 << 7, CRUISING = 1 << 8, 
+                TESTING = 1 << 6, TAXIING = 1 << 7, CRUISING = 1 << 8,
                 FOLLOWING = 1 << 9, HOPPING = 1 << 10
             };
             public wpType type;
@@ -65,7 +48,7 @@ namespace IngameScript
                             {
                                 return "[LOOP][WAIT=10] " + MSG_ALIGNING;
                             }
-                            
+
                         }
                         else if (GridBlocks.masterProgrammableBlock != null
                             && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG))
@@ -173,7 +156,8 @@ namespace IngameScript
                         return "following...";
                     case wpType.HOPPING:
                         return "hopping...";
-                    default: break;
+                    default:
+                        break;
                 }
                 return "Testing...";
             }

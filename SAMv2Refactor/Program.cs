@@ -2,9 +2,7 @@
 using SpaceEngineers.Game.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using VRage.Game.ModAPI.Ingame;
 using VRageMath;
 
 namespace IngameScript
@@ -84,7 +82,7 @@ namespace IngameScript
         private static float DOCKING_PANEL_DISTANCE = 5.0f; // When using Path-Docking, the distance from the panel.
         private static float DOCK_SPEED = 1.0f; //Ship speed when in docking or undocking mode
         private static float UNDOCK_DISTANCE = 10.0f; // How far to move from connector when undocking
-        
+
         private static float APPROACH_SAFE_DISTANCE = 5.0f; //how far away the ship hovers from the taxi points (Tag: Taxi_distance)
         private static float CONVERGING_SPEED = 100f; //How fast the ship should go when no objects are in the ship's path
 
@@ -132,7 +130,7 @@ namespace IngameScript
         private const string MAIN_CONNECTOR_TAG = "MAIN";
         //Some modded connectors are placed backwards to work for some reason. It confuses this script.
         //^^ If the connector goes on backwards, add this tag to the connector to work around that.
-        private const string CONNECTOR_REVERSE_TAG = "REV"; 
+        private const string CONNECTOR_REVERSE_TAG = "REV";
         private const string LIST_MODE_TAG = "LIST";
         private const string LOOP_MODE_TAG = "LOOP";
         private const string WAIT_TAG = "WAIT";
@@ -156,15 +154,15 @@ namespace IngameScript
         private const string APPROACH_SPEED_TAG = "APPROACH_SPEED";
         private const string CONVERGING_SPEED_TAG = "CONVERGING_SPEED";
         private const string ARRIVAL_DISTANCE_TAG = "ARRIVAL_DISTANCE";
-        private const string ARRIVAL_SPEED_TAG = "ARRIVAL_SPEED"; 
+        private const string ARRIVAL_SPEED_TAG = "ARRIVAL_SPEED";
         private const string ESCAPE_NOSE_UP_TAG = "ESCAPE_NOSE_UP";
         private const string ESCAPE_NOSE_UP_ELEVATION_TAG = "NOSE_UP_ELEVATION";
         private const string DESCEND_NOSE_DOWN_ELEVATION_TAG = "NOSE_DOWN_ELEVATION";
         // Slows the ship to taxiing speed when closing in onto the runway or docking connector
-        private const string SLOW_ON_APPROACH_TAG = "SLOW_ON_APPROACH"; 
+        private const string SLOW_ON_APPROACH_TAG = "SLOW_ON_APPROACH";
         // In space, should the ship point directly at the destination on navigation started before taking off?
         // Use the BuildInfo mod to make sure that this is the case.
-        private const string ALLOW_DIRECT_ALIGNMENT_TAG = "ALLOW_DIRECT_ALIGNMENT"; 
+        private const string ALLOW_DIRECT_ALIGNMENT_TAG = "ALLOW_DIRECT_ALIGNMENT";
         private const string AUTO_CRUISE_ATTRIBUTE = "AUTO_CRUISE";
         private static string REMOTE_CMD_TAG = MAIN_CMD_TAG + "CMD";
         private static string REMOTE_CMD_RESPONSE_TAG = MAIN_CMD_TAG + "CMD_RESPONSE";
@@ -183,7 +181,7 @@ namespace IngameScript
         private static float GUIDANCE_MIN_AIM_DISTANCE = 0.5f;
         private static float DISTANCE_TO_GROUND_IGNORE_PLANET = 1.2f * HORIZONT_CHECK_DISTANCE;
         private static float MAX_TRUST_UNDERESTIMATE_PERCENTAGE = 0.90f;
-        
+
         private static string ADVERT_ID = "SAMv2";
         private static string ADVERT_ID_VER = "SAMv2V";
         private static string STORAGE_VERSION = "deadbeef";
@@ -192,12 +190,9 @@ namespace IngameScript
         private List<IMyTextPanel> lcds = new List<IMyTextPanel>();
         private IMyTextPanel lcd;
         private bool lcdfound = false;
-        
+
         private static double TICK_TIME = 0.166666f;
         private static double FOLLOWER_DISTANCE_FROM_LEADER = 1.66666f; // Seems to have something to do with how quickly followers react to leader movements
-        
-        
-        
 
         private IMyBroadcastListener listener;
         private IMyBroadcastListener cmdListener;
@@ -340,7 +335,7 @@ namespace IngameScript
                                 break;
                             case "ORBIT":
                                 Pannel.ScreenHandle(Pannel.ScreenAction.AddOrbit);
-                                break; 
+                                break;
                             default:
                                 Pannel.ScreenHandle(Pannel.ScreenAction.Add, String.Join(" ", parts.Skip(1).ToArray()));
                                 break;
@@ -460,14 +455,15 @@ namespace IngameScript
             {
                 this.ScanGrid();
             }
-            catch (Exception exception) {
+            catch (Exception exception)
+            {
                 Logger.Err("Once ScanGrid exception: " + exception.Message);
             }
         }
-        
+
         private void UpdateInterGridCommunication(ref string msg)
         {
-            
+
             if (msg == MAIN_CMD_TAG)
             {
                 while (listener.HasPendingMessage)
@@ -682,7 +678,7 @@ namespace IngameScript
                             sentSignal = true;
                             //timer.ApplyAction("Start");
                         }
-                        if (Block.HasProperty(timerBlock.EntityId, "NAVIGATED") 
+                        if (Block.HasProperty(timerBlock.EntityId, "NAVIGATED")
                             && Signal.list.Contains(Signal.SignalType.NAVIGATION))
                         {
                             Logger.Info("Timer started due to Navigation finished");
@@ -690,21 +686,21 @@ namespace IngameScript
                             timer.StartCountdown();
                             sentSignal = true;
                         }
-                        if (Block.HasProperty(timerBlock.EntityId, "STARTED") 
+                        if (Block.HasProperty(timerBlock.EntityId, "STARTED")
                             && Signal.list.Contains(Signal.SignalType.START))
                         {
                             Logger.Info("Timer started due to Navigation start");
                             timer.StartCountdown();
                             sentSignal = true;
                         }
-                        if (Block.HasProperty(timerBlock.EntityId, "UNDOCKED") 
+                        if (Block.HasProperty(timerBlock.EntityId, "UNDOCKED")
                             && Signal.list.Contains(Signal.SignalType.UNDOCK))
                         {
                             Logger.Info("Timer triggered due to undocking started");
                             timer.Trigger();
                             sentSignal = true;
                         }
-                        if (Block.HasProperty(timerBlock.EntityId, "APPROACHING") 
+                        if (Block.HasProperty(timerBlock.EntityId, "APPROACHING")
                             && Signal.list.Contains(Signal.SignalType.APPROACH))
                         {
                             Logger.Info("Timer started due to approaching destination");

@@ -1,22 +1,7 @@
-﻿using Sandbox.Game.EntityComponents;
-using Sandbox.ModAPI.Ingame;
-using Sandbox.ModAPI.Interfaces;
-using SpaceEngineers.Game.ModAPI.Ingame;
+﻿using Sandbox.ModAPI.Ingame;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
-using VRage;
-using VRage.Collections;
-using VRage.Game;
-using VRage.Game.Components;
-using VRage.Game.GUI.TextPanel;
-using VRage.Game.ModAPI.Ingame;
-using VRage.Game.ModAPI.Ingame.Utilities;
-using VRage.Game.ObjectBuilders.Definitions;
-using VRageMath;
 
 namespace IngameScript
 {
@@ -25,7 +10,7 @@ namespace IngameScript
         private static class CustomData
         { // CustomData
             public static System.Text.RegularExpressions.Regex customDataRegex =
-                new System.Text.RegularExpressions.Regex("\\s*" 
+                new System.Text.RegularExpressions.Regex("\\s*"
                 + MAIN_CMD_TAG + "\\.([a-zA-Z0-9]*)([:=]{1}([\\S]*))?",
                     System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             private static System.Text.RegularExpressions.Match match;
@@ -49,13 +34,13 @@ namespace IngameScript
                 entityId = block.EntityId;
                 foreach (string line in lines)
                 {
-                    
+
                     trim = line.Trim();
                     if (trim == "") // No tags found skip over block
                     {
                         continue;
                     }
-                    
+
                     match = customDataRegex.Match(trim);
                     matched = match.Success || matched; // Check its a SAM command format in CustomData
 
@@ -75,7 +60,7 @@ namespace IngameScript
                                     continue;
                                 }
                             }
-                            
+
                             else
                             {
                                 // Convert all entered commands to upper case for matching
@@ -100,7 +85,7 @@ namespace IngameScript
                             }
                         }
                         // If just MAIN_CMD_TAG, add a . and go to next line
-                        build += MAIN_CMD_TAG + ".\n"; 
+                        build += MAIN_CMD_TAG + ".\n";
                         continue;
                     }
                     else
