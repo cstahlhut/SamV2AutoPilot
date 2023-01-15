@@ -10,11 +10,16 @@ namespace IngameScript
         private static class CustomName
         {  // CustomName
             private static char[] attributeSeparator = new char[] { ':', '=' };
-            private static System.Text.RegularExpressions.Regex tagSimpleRegex = new System.Text.RegularExpressions.Regex("\\[(" + MAIN_CMD_TAG + "[\\s\\S]*)\\]",
+            private static System.Text.RegularExpressions.Regex tagSimpleRegex
+                = new System.Text.RegularExpressions.Regex(
+                    "\\[(" + MAIN_CMD_TAG + "[\\s\\S]*)\\]",
                 System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-            private static string tagRegStr = MAIN_CMD_TAG + "\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*"
+            private static string tagRegStr = MAIN_CMD_TAG 
+                + "\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*"
                 + "(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*(\\S*)\\s*";
-            private static System.Text.RegularExpressions.Regex tagRegex = new System.Text.RegularExpressions.Regex(tagRegStr, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            private static System.Text.RegularExpressions.Regex tagRegex =
+                new System.Text.RegularExpressions.Regex(
+                    tagRegStr, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             private static System.Text.RegularExpressions.Match simpleMatch;
             private static System.Text.RegularExpressions.Match match;
             private static string build;

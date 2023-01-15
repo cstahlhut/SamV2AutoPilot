@@ -12,8 +12,8 @@ namespace IngameScript
             private static Vector3D desiredFront = new Vector3D();
             private static Vector3D desiredUp = new Vector3D();
             private static float desiredSpeed = MAX_SPEED;
-            private static Waypoint waypoint = null;
-            //private const double planetUpDiffThreshold = 0.5;
+            private static Waypoint waypoint = null; // ** SCA ** 
+            private const double planetUpDiffThreshold = 0.5;
 
             public static void Set(Waypoint wp)
             {
@@ -36,7 +36,7 @@ namespace IngameScript
                 }
             }
 
-            // ** SCA **
+            // ** SCA - Planet related **
             public static void ThrusterRelease()
             {
                 foreach (IMyThrust thruster in GridBlocks.thrusterBlocks)
@@ -45,7 +45,7 @@ namespace IngameScript
                 }
             }
 
-            // ** SCA **
+            // ** SCA - Planet related **
             public static void ThrusterPlanetarySlowdown()
             {
                 if (Situation.inGravity && Navigation.waypoints.Count != 0
@@ -67,9 +67,9 @@ namespace IngameScript
                 }
             }
 
-            public static void Tick()
+            public static void GuidanceTick()
             {
-                Guidance.StanceTick();
+                Guidance.PosAndOriTick();
                 Guidance.GyroTick();
                 Guidance.ThrusterTick();
             }
@@ -77,22 +77,28 @@ namespace IngameScript
             public static bool Done()
             { // Guidance.Done
 
-                // ** SC Change ***
-                return worldVector.Length() < 0.05 && pathLen <= 0.1f; // *********************** was at pathLen <= 0.1f
-                //return (Math.Abs(elevation) <= ROTATION_CHECK_TOLERANCE * 2
-                //    && Math.Abs(azimuth) <= ROTATION_CHECK_TOLERANCE * 2
-                //    && Math.Abs(roll) <= ROTATION_CHECK_TOLERANCE * 2
-                //    && pathLen <= DISTANCE_CHECK_TOLERANCE * 2
-                //    && ConnectorControl.Connect()) || (Math.Abs(elevation) <= ROTATION_CHECK_TOLERANCE
-                //    && Math.Abs(azimuth) <= ROTATION_CHECK_TOLERANCE
-                //    && Math.Abs(roll) <= ROTATION_CHECK_TOLERANCE
-                //    && pathLen <= DISTANCE_CHECK_TOLERANCE);
+                // SC Version //
+                // *********************** 
+                // was at pathLen <= 0.1f
+                // return worldVector.Length() < 0.05 && pathLen <= 0.1f; 
+                // *************
+
+                // OG Version //
+                return (Math.Abs(elevation) <= ROTATION_CHECK_TOLERANCE * 2
+                    && Math.Abs(azimuth) <= ROTATION_CHECK_TOLERANCE * 2
+                    && Math.Abs(roll) <= ROTATION_CHECK_TOLERANCE * 2
+                    && pathLen <= DISTANCE_CHECK_TOLERANCE * 2
+                    && ConnectorControl.Connect()) || (Math.Abs(elevation) <= ROTATION_CHECK_TOLERANCE
+                    && Math.Abs(azimuth) <= ROTATION_CHECK_TOLERANCE
+                    && Math.Abs(roll) <= ROTATION_CHECK_TOLERANCE
+                    && pathLen <= DISTANCE_CHECK_TOLERANCE);
+                 // *************
             }
 
             private static Vector3D pathNormal, path, aimTarget, upVector, aimVector;
             public static float pathLen;
 
-            private static void StanceTick()
+            private static void PosAndOriTick()
             {
                 path = desiredPosition - Situation.position;
                 pathLen = (float)path.Length();
@@ -121,9 +127,36 @@ namespace IngameScript
                 {
                     upVector = (desiredUp == Vector3D.Zero) ? Situation.gravityUpVector : desiredUp;
                 }
-                else if (!Situation.turnNoseUp) //was just an else (change this back to else if script breaks)
+                //was just an else (change this back to else if script breaks)
+                else if (!Situation.turnNoseUp) 
                 {
                     upVector = (desiredUp == Vector3D.Zero) ? Vector3D.Cross(aimVector, Situation.leftVector) : desiredUp;
+                    //reset the diff so that it won't tilt the ship at the wrong time (when not in gravity well)
+                    //planetDirDifference = 0; 
+                }
+                // ** OG Version of above **
+                //else
+                //{
+                //    upVector = (desiredUp == Vector3D.Zero) ? Vector3D.Cross(aimVector, Situation.leftVector) : desiredUp;
+                //}
+                
+                // ** SCA ***
+                else
+                {
+                    Vector3D planetUpVector = Vector3D.Normalize(RemoteControl.block.GetNaturalGravity() * -1);
+                    Vector3D desiredUpVector = Situation.upVector;
+
+                    if (waypoint.type == Waypoint.wpType.CONVERGING || waypoint.type == Waypoint.wpType.CRUISING)
+                    {
+                        Vector3D newUpVector = Vector3D.ProjectOnPlane(ref planetUpVector, ref targetDirection);
+                        newUpVector = Vector3D.Normalize(newUpVector);
+                        desiredUpVector = newUpVector;
+                    }
+
+                    upVector = (desiredUp == Vector3D.Zero) ?
+                        //Vector3D.CalculatePerpendicularVector(Vector3D.Normalize(Vector3D.Cross(aimVector, planetUpVector))) //was just working (abandoned due to strange orientation of dedicated servers
+                        //Vector3D.Cross(aimVector, Vector3D.CalculatePerpendicularVector(Vector3D.Normalize(planetUpVector))) 
+                        desiredUpVector : desiredUp; //was "desiredUp"
                 }
                 else
                 {
@@ -265,6 +298,8 @@ namespace IngameScript
                             break;
                     }
                 }
+
+                // ** SCA - Planet related **
                 /**************** REMOVE BELOW IF THE SHIP BREAKS *************************/
                 if (desiredSpeed < Situation.linearVelocity.Length() - BRAKE_THRUST_TRIGGER_DIFFERENCE)
                 {

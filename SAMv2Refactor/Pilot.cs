@@ -56,6 +56,7 @@ namespace IngameScript
                 }
                 Navigation.NavigationTick();
 
+                // ** SCA **
                 //****************** If script breaks, remove if below ***********************
                 // (was before Navigation.Tick())
                 if (Navigation.waypoints.Count > 0 && Navigation.waypoints[0].type == Waypoint.wpType.DOCKING
@@ -90,7 +91,7 @@ namespace IngameScript
                     Logger.Warn(MSG_NO_CONNECTORS_AVAILABLE);
                     return;
                 }
-                bool reversedConnector = Block.HasProperty(connector.EntityId, CONNECTOR_REVERSE_TAG);
+                
                 Situation.RefreshParameters();
                 connectorToCenter = Situation.position - connector.GetPosition();
                 if ((Situation.inGravity || Situation.turnNoseUp)
@@ -109,9 +110,21 @@ namespace IngameScript
                     up = dock[0].posAndOrientation.up;
                     referenceUp = connector.WorldMatrix.Up;
                 }
+                
+                // ** SC Version for Rev Connector **
+                bool reversedConnector = Block.HasProperty(connector.EntityId, REVERSE_CONNECTOR_TAG);
                 qInitialInverse = Quaternion.Inverse(Quaternion.CreateFromForwardUp(
                     !reversedConnector ? connector.WorldMatrix.Forward
                     : connector.WorldMatrix.Backward, referenceUp));
+                // **********************************
+                
+                // ** OG Version for Rev Connector **
+                // revConnector = Block.HasProperty(connector.EntityId, REVERSE_CONNECTOR_TAG);
+                // qInitialInverse = Quaternion.Inverse(Quaternion.CreateFromForwardUp(
+                //    revConnector ? connector.WorldMatrix.Backward 
+                //    : connector.WorldMatrix.Forward, referenceUp));
+                // **********************************
+                
                 qFinal = Quaternion.CreateFromForwardUp(-dock[0].posAndOrientation.forward, up);
                 qDiff = qFinal * qInitialInverse;
                 rotatedConnectorToCenter = Vector3D.Transform(connectorToCenter, qDiff);
@@ -142,7 +155,7 @@ namespace IngameScript
             private static void SetEndPosisitionAndOrietation(Dock dock)
             {// Previously called SetStance(Dock dock)
                 Navigation.ResetArrival();
-                Situation.RefreshParameters();
+                Situation.RefreshSituationbParameters();
                 wpType = (dock.job == Dock.JobType.HOP) ? Waypoint.wpType.HOPPING : Waypoint.wpType.CONVERGING;
                 if (dock.blockEntityId == 0)
                 {
@@ -203,8 +216,8 @@ namespace IngameScript
                     Vector3D taxiEndPos = disconnectDock.approachPath[0].position
                         + (disconnectDock.approachPath[0].direction
                         * (APPROACH_SAFE_DISTANCE + Situation.radius)); //end taxi way pos
-                                                                        //"Vector3D newPos" is still the destination
-                                                                        //*************************** Remove Below 2 lines if breaks *****************************//
+                    //"Vector3D newPos" is still the destination
+                    //*************************** Remove Below 2 lines if breaks *****************************//
                     Vector3D direction2 = Vector3D.Normalize(newPos - taxiBeginPos);
                     Vector3D balancedDirection2 = Vector3D.ProjectOnPlane(ref direction2,
                         ref Situation.gravityUpVector);
@@ -244,13 +257,10 @@ namespace IngameScript
             public static void Undock()
             {
                 Situation.RefreshParameters();
-
                 if (Situation.linearVelocity.Length() >= 2.0f)
                 {
                     return;
-
                 }
-
                 disconnectDock = ConnectorControl.DisconnectAndTaxiData();
                 direction = Vector3D.Normalize(newPos - Situation.position);
                 balancedDirection = Vector3D.ProjectOnPlane(ref direction, ref Situation.gravityUpVector);
@@ -304,6 +314,11 @@ namespace IngameScript
                 Signal.Send(Signal.SignalType.START);
                 SetEndPosisitionAndOrietation(dock);
                 running = true;
+
+                // ** NOT USED IN SC VERSION? **
+                Autopilot.Activate(dock);
+                Signal.Send(Signal.SignalType.START);
+                // *****************************
             }
 
             public static void Follow()

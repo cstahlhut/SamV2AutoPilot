@@ -48,7 +48,6 @@ namespace IngameScript
                             {
                                 return "[LOOP][WAIT=10] " + MSG_ALIGNING;
                             }
-
                         }
                         else if (GridBlocks.masterProgrammableBlock != null
                             && Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, LIST_MODE_TAG))

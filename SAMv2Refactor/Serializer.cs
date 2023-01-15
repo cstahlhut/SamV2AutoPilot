@@ -345,7 +345,7 @@ namespace IngameScript
                 return sc;
             }
 
-            public static Autopilot.Mode UnpackCommanderMode()
+            public static Autopilot.Mode UnpackAutopilotMode()
             {
                 return (Autopilot.Mode)UnpackInt();
             }

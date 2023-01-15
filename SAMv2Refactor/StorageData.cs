@@ -108,7 +108,7 @@ namespace IngameScript
                 {
                     Autopilot.currentDock = Serializer.UnpackDock();
                 }
-                Autopilot.mode = Serializer.UnpackCommanderMode();
+                Autopilot.mode = Serializer.UnpackAutopilotMode();
                 return true;
             }
         }
