@@ -52,7 +52,7 @@ namespace IngameScript
                     }
                     Serializer.Pack(connectorName);
                     Serializer.Pack(connector.GetPosition());
-                    if (Block.HasProperty(connector.EntityId, CONNECTOR_REVERSE_TAG))
+                    if (Block.HasProperty(connector.EntityId, REVERSE_CONNECTOR_TAG))
                     {
                         Serializer.Pack(connector.WorldMatrix.Backward);
                     }

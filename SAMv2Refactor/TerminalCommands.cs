@@ -24,7 +24,9 @@ namespace IngameScript
     {
         private static class TerminalCommands
         { // Terminal
-            public static List<string> COMMANDS = new List<string> { "step", "run", "loop", "step conf", "run conf", "loop conf", "start", "stop" };
+            public static List<string> COMMANDS = new List<string> {
+                "step", "run", "loop", "step conf", "run conf",
+                "loop conf", "start", "stop" };
             private static string CMD = "SAMv2 cmd# ";
             private static System.Text.RegularExpressions.Regex cmdRegStr = new System.Text.RegularExpressions.Regex("^" + CMD + "\\s*([\\S ]+)\\s*$");
             private static System.Text.RegularExpressions.Regex navRegStr = new System.Text.RegularExpressions.Regex("^(\\{(\\S+)\\}){0,1}(\\[(\\S+)\\]){0,1}(\\S+)$");

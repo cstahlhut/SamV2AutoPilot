@@ -36,6 +36,8 @@ namespace IngameScript
             public static bool allowEscapeNoseUp;
             public static bool slowOnApproach;
             public static double distanceToGround;
+            public static bool turnNoseUp; //true when in gravity but nose would be up
+            public static float noseDownElevation = ESCAPE_NOSE_UP_ELEVATION;
             public static double radius;
             public static float mass;
             public static Vector3D gravityUpVector;
@@ -65,12 +67,12 @@ namespace IngameScript
             };
 
             private static double forwardChange, upChange, leftChange;
-
             private static Vector3D maxThrust;
 
             // ** SCA **
             public static double autoCruiseAltitude = double.PositiveInfinity;
-            // ** SCA Modified existing method ***
+            
+            // ** SCA Version *****************************************************************
             public static double GetMaxThrust(Vector3D dir)
             {
                 forwardChange = Vector3D.Dot(dir, Situation.gridForwardVect);
@@ -82,8 +84,19 @@ namespace IngameScript
                 maxThrust.Z = leftChange * thrusterDirtectionalPower[(leftChange > 0) ? Base6Directions.Direction.Left : Base6Directions.Direction.Right];
                 return MAX_TRUST_UNDERESTIMATE_PERCENTAGE * maxThrust.Length();
             }
+            // ********************************************************************************
 
-            public static void RefreshParameters()
+            // ** OG Version ******************************************************************
+            // public static double autoCruiseAltitude = double.PositiveInfinity;
+            // public static double GetMaxThrust(Vector3D dir)
+            // {
+            //    var remoteControl = RemoteControl.block.WorldMatrix.GetClosestDirection(-dir);
+            //    return maxThrust.Where(kvp => kvp.Value != 0
+            //        && kvp.Key != remoteControl).Min(kvp => kvp.Value);
+            // }
+            // ********************************************************************************
+
+            public static void RefreshSituationbParameters()
             {
                 foreach (Base6Directions.Direction direction in thrusterDirtectionalPower.Keys.ToList())
                 {
@@ -98,9 +111,12 @@ namespace IngameScript
                     }
                     thrusterDirtectionalPower[thruster.Orientation.Forward] += thruster.MaxEffectiveThrust;
                 }
-                gridForwardVect = RemoteControl.block.CubeGrid.WorldMatrix.GetDirectionVector(Base6Directions.Direction.Forward);
-                gridUpVect = RemoteControl.block.CubeGrid.WorldMatrix.GetDirectionVector(Base6Directions.Direction.Up);
-                gridLeftVect = RemoteControl.block.CubeGrid.WorldMatrix.GetDirectionVector(Base6Directions.Direction.Left);
+                gridForwardVect =
+                    RemoteControl.block.CubeGrid.WorldMatrix.GetDirectionVector(Base6Directions.Direction.Forward);
+                gridUpVect =
+                    RemoteControl.block.CubeGrid.WorldMatrix.GetDirectionVector(Base6Directions.Direction.Up);
+                gridLeftVect =
+                    RemoteControl.block.CubeGrid.WorldMatrix.GetDirectionVector(Base6Directions.Direction.Left);
                 mass = RemoteControl.block.CalculateShipMass().PhysicalMass;
                 position = RemoteControl.block.CenterOfMass;
                 orientation = RemoteControl.block.WorldMatrix.GetOrientation();
@@ -116,12 +132,13 @@ namespace IngameScript
                 planetDetected = RemoteControl.block.TryGetPlanetPosition(out planetCenter);
                 naturalGravity = RemoteControl.block.GetNaturalGravity();
                 inGravity = naturalGravity.Length() >= 0.5;
-                
+
                 // ** SCA ***
                 if (inGravity)
                 {
                     seaElevationVelocity = Vector3D.Dot(linearVelocity, -Vector3D.Normalize(naturalGravity));
                 }
+                
                 // ** SCA ***
                 if (allowEscapeNoseUp && inGravity)
                 {

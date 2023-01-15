@@ -259,7 +259,7 @@ namespace IngameScript
                 {
                     if (float.TryParse(speed, out speedInt))
                     {
-                        if (DOCK_SPEED != speedInt)
+                        if (DOCKING_SPEED != speedInt)
                         {
                             DOCK_SPEED = speedInt;
                             Logger.Info("Docking speed changed to " + DOCK_SPEED);
@@ -348,6 +348,7 @@ namespace IngameScript
                     if (Double.TryParse(speed, out wait))
                     {
                         Autopilot.waitTime = TimeSpan.FromSeconds(wait).Ticks;
+                        Logger.Info("Wait time changed to " + Autopilot.waitTime);
                     }
                 }
                 gravity = Block.HasProperty(terminalBlock.EntityId, IGNORE_GRAVITY_TAG);
@@ -356,10 +357,46 @@ namespace IngameScript
                     Situation.ignoreGravity = gravity;
                     Logger.Info("Ship orientation " + (gravity ? "ignoring" : "using") + " gravity for alignment.");
                 }
+                if (Block.GetProperty(terminalBlock.EntityId, ESCAPE_NOSE_UP_ELEVATION_TAG, ref speed) && Situation.allowEscapeNoseUp)
+                {
+                    if (float.TryParse(speed, out speedInt))
+                    {
+                        if (ESCAPE_NOSE_UP_ELEVATION != (float)speedInt)
+                        {
+                            ESCAPE_NOSE_UP_ELEVATION = (float)speedInt;
+                            Logger.Info("Escape nose up ground-to-air elevation changed to " + ESCAPE_NOSE_UP_ELEVATION);
+                        }
+                    }
+                }
+                if (Block.GetProperty(terminalBlock.EntityId, DESCEND_NOSE_DOWN_ELEVATION_TAG, ref speed) && Situation.allowEscapeNoseUp)
+                {
+                    if (float.TryParse(speed, out speedInt))
+                    {
+                        if (Situation.noseDownElevation != (float)speedInt)
+                        {
+                            Situation.noseDownElevation = (float)speedInt;
+                            Logger.Info($"Descend nose down ground-to-air elevation changed to {Situation.noseDownElevation:N0}");
+                        }
+                    }
+                }
+                else if (Situation.noseDownElevation != ESCAPE_NOSE_UP_ELEVATION && Situation.allowEscapeNoseUp)
+                {
+                    Logger.Warn($"Nose down elevation not set. Matching nose up elevation...");
+                    Logger.Info("Use the custom data to set nose down elevation");
+                    Logger.Info($"Custom data reference: SAM.{DESCEND_NOSE_DOWN_ELEVATION_TAG}=<number>");
+                    Situation.noseDownElevation = ESCAPE_NOSE_UP_ELEVATION;
+                }
+
+                bool noseUp = Block.HasProperty(terminalBlock.EntityId, ESCAPE_NOSE_UP_TAG);
+                if (noseUp != Situation.allowEscapeNoseUp)
+                {
+                    Situation.allowEscapeNoseUp = noseUp;
+                    Logger.Info(noseUp ? "Escape atmosphere nose up is now enabled" : "Escape atmosphere nose up is now disabled.");
+                }
+
                 if (Block.HasProperty(terminalBlock.EntityId, LIST_MODE_TAG))
                 {
                     Autopilot.mode = Autopilot.Mode.LIST;
-                    //Logger.Info("Running in LIST mode");
                 }
                 else if (Block.HasProperty(terminalBlock.EntityId, LOOP_MODE_TAG))
                 {

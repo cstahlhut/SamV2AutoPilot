@@ -136,7 +136,9 @@ namespace IngameScript
             public static Dock DisconnectAndTaxiData()
             {
                 retractDock = null;
-                foreach (IMyShipConnector connector in GridBlocks.shipConnectorBlocks)
+                connectors = ListOfConnectors();
+                
+                foreach (IMyShipConnector connector in connectors)
                 {
                     if (connector.Status == MyShipConnectorStatus.Connected)
                     {
@@ -165,7 +167,7 @@ namespace IngameScript
                 {
                     foreach (IMyShipConnector connector in GridBlocks.shipConnectorBlocks)
                     {
-                        bool reverse = Block.HasProperty(connector.EntityId, CONNECTOR_REVERSE_TAG);
+                        reverse = Block.HasProperty(connector.EntityId, REVERSE_CONNECTOR_TAG);
                         if (Math.Abs(Vector3D.Dot(reverse ? connector.WorldMatrix.Backward :
                             connector.WorldMatrix.Forward, RemoteControl.block.WorldMatrix.Up)) < 0.5f)
                         {
@@ -177,7 +179,7 @@ namespace IngameScript
                 {
                     foreach (IMyShipConnector connector in GridBlocks.shipConnectorBlocks)
                     {
-                        bool reverse = Block.HasProperty(connector.EntityId, CONNECTOR_REVERSE_TAG);
+                        reverse = Block.HasProperty(connector.EntityId, REVERSE_CONNECTOR_TAG);
                         if (Vector3D.Dot(reverse ? connector.WorldMatrix.Backward :
                             connector.WorldMatrix.Forward, -dock.posAndOrientation.forward) > 0.5f)
                         {

@@ -100,6 +100,86 @@ namespace IngameScript
         private static int LOG_MAX_LINES = 30;
 
         // -------------------------------------------------------
+        // Messages
+        // -------------------------------------------------------
+
+        private static string MSG_ALIGNING = "aligning...";
+        private static string MSG_DOCKING = "docking...";
+        private static string MSG_UNDOCKING = "undocking...";
+        private static string MSG_CONVERGING = "converging...";
+        private static string MSG_APPROACHING = "approaching...";
+        private static string MSG_NAVIGATING = "navigating...";
+        private static string MSG_TAXIING = "taxiing...";
+        private static string MSG_NAVIGATING_TO = "Navigating to";
+        private static string MSG_CRUISING_AT = "cruising at {0:N} m, climbing at {1:N0}°...";
+        private static string MSG_NAVIGATION_TO_WAYPOINT = "Navigating to coordinates";
+        private static string MSG_NAVIGATION_SUCCESSFUL = "Navigation successful!";
+        private static string MSG_NO_CONNECTORS_AVAILABLE = "No connectors available!";
+        private static string MSG_FAILED_TO_DOCK = "Failed to dock!";
+        private static string MSG_DOCKING_SUCCESSFUL = "Docking successful!";
+        private static string MSG_NO_REMOTE_CONTROL = "No Remote Control Found!";
+        private static string MSG_INVALID_GPS_TYPE = "Invalid GPS format! GPS can also not be 0:0:0!";
+
+        // -------------------------------------------------------
+        // Tags
+        // -------------------------------------------------------
+
+        #region Tags
+        /*
+        ***************************************************************
+        ALL TAGS MUST BE UPPERCASE DUE TO REGEX MATCHING AND CONVERSION
+        ***************************************************************
+        */
+        private const string NAME_TAG = "NAME";
+        private const string ADVERTISE_TAG = "ADVERTISE";
+        private const string IGNORE_TAG = "IGNORE";
+        private const string MAIN_CONNECTOR_TAG = "MAIN";
+        //Some modded connectors are placed backwards to work for some reason. It confuses this script.
+        //^^ If the connector goes on backwards, add this tag to the connector to work around that.
+        private const string REVERSE_CONNECTOR_TAG = "REV";
+        private const string LIST_MODE_TAG = "LIST";
+        private const string LOOP_MODE_TAG = "LOOP";
+        private const string WAIT_TAG = "WAIT";
+        private const string AGGRO_TAG = "AGGRO";
+        private const string MASS_EXCESS_TAG = "MASS_EXCESS";
+        private const string EFFECTIVE_THRUST_TAG = "EFFECTIVE_THRUST";
+        private const string MAX_SPEED_TAG = "MAX_SPEED";
+        private const string IGNORE_GRAVITY_TAG = "IGNORE_GRAVITY";
+        private const string NO_DAMPENERS_TAG = "NO_DAMPENERS";
+        private const string FOLLOW_TAG = "FOLLOW";
+        private const string FOLLOW_FRONT_TAG = "FOLLOW_FRONT";
+        private const string FOLLOW_UP_TAG = "FOLLOW_UP";
+        private const string FOLLOW_RIGHT_TAG = "FOLLOW_RIGHT";
+        private const string TAXI_SPEED_TAG = "TAXI_SPEED";
+        private const string TAXI_DISTANCE_TAG = "TAXI_DISTANCE";
+        private const string TAXI_PANEL_DISTANCE_TAG = "TAXI_PANEL_DISTANCE";
+        private const string APPROACH_DISTANCE_TAG = "APPROACH_DISTANCE";
+        private const string DOCK_DISTANCE_TAG = "DOCK_DISTANCE";
+        private const string DOCK_SPEED_TAG = "DOCK_SPEED";
+        private const string UNDOCK_DISTANCE_TAG = "UNDOCK_DISTANCE";
+        private const string APPROACH_SPEED_TAG = "APPROACH_SPEED";
+        private const string CONVERGING_SPEED_TAG = "CONVERGING_SPEED";        
+        private static string LEADER_TAG = MAIN_CMD_TAG + LEADER_TAG;
+        private static string REMOTE_CMD_TAG = MAIN_CMD_TAG + "CMD";
+        private static string REMOTE_CMD_RESPONSE_TAG = MAIN_CMD_TAG + "CMD_RESPONSE";
+
+        // -------------------------------------------------------
+        // SCA TAGS
+        // -------------------------------------------------------
+        private const string ARRIVAL_DISTANCE_TAG = "ARRIVAL_DISTANCE";
+        private const string ARRIVAL_SPEED_TAG = "ARRIVAL_SPEED";
+        private const string ESCAPE_NOSE_UP_TAG = "ESCAPE_NOSE_UP";
+        private const string ESCAPE_NOSE_UP_ELEVATION_TAG = "NOSE_UP_ELEVATION";
+        private const string DESCEND_NOSE_DOWN_ELEVATION_TAG = "NOSE_DOWN_ELEVATION";
+        // Slows the ship to taxiing speed when closing in onto the runway or docking connector
+        private const string SLOW_ON_APPROACH_TAG = "SLOW_ON_APPROACH";
+        // In space, should the ship point directly at the destination on navigation started before taking off?
+        // Use the BuildInfo mod to make sure that this is the case.
+        private const string ALLOW_DIRECT_ALIGNMENT_TAG = "ALLOW_DIRECT_ALIGNMENT";
+        private const string AUTO_CRUISE_ATTRIBUTE = "AUTO_CRUISE";
+        #endregion
+
+        // -------------------------------------------------------
         // Avoid touching anything below this. Things will break.
         // -------------------------------------------------------
 
@@ -171,8 +251,8 @@ namespace IngameScript
         private static string LEADER_TAG = MAIN_CMD_TAG + "LEADER";
         #endregion
 
-        //private static float DISTANCE_CHECK_TOLERANCE = 0.15f; // Script will assume the ship has reached the target position once the distance is lower than this.
-        //private static double ROTATION_CHECK_TOLERANCE = 0.015; // Scrip will assume the ship has reached the target rotation once the rotation thresholds are lower than this.
+        private static float DISTANCE_CHECK_TOLERANCE = 0.15f; // Script will assume the ship has reached the target position once the distance is lower than this.
+        private static double ROTATION_CHECK_TOLERANCE = 0.015; // Scrip will assume the ship has reached the target rotation once the rotation thresholds are lower than this.
         private static float HORIZONT_CHECK_ANGLE_LIMIT = (float)Math.PI / 32.0f;
         private static float HORIZONT_CHECK_ANGLE_STEP = (float)Math.PI / 75.0f;
         private static float HORIZONT_MAX_UP_ANGLE = (float)Math.PI;
@@ -188,7 +268,6 @@ namespace IngameScript
         private static string ADVERT_ID_VER = "SAMv2V";
         private static string STORAGE_VERSION = "deadbeef";
 
-
         private List<IMyTextPanel> lcds = new List<IMyTextPanel>();
         private IMyTextPanel lcd;
         private bool lcdfound = false;
@@ -196,9 +275,6 @@ namespace IngameScript
         private static double TICK_TIME = 0.166666f;
         private static double FOLLOWER_DISTANCE_FROM_LEADER = 1.66666f; // Seems to have something to do with how quickly followers react to leader movements
         
-        
-        
-
         private IMyBroadcastListener listener;
         private IMyBroadcastListener cmdListener;
         private IMyBroadcastListener cmdResListener;
@@ -352,7 +428,7 @@ namespace IngameScript
                     case "SCREEN":
                         Pannel.NextScreen();
                         break;
-                    case "FOLLOW":
+                    case FOLLOW_TAG:
                         Pilot.Follow();
                         break;
                     case "START":
@@ -509,7 +585,7 @@ namespace IngameScript
                     }
                     catch (Exception exception)
                     {
-                        Logger.Err("Antenna Commander.ProcessCmd exception: " + exception.Message);
+                        Logger.Err("Antenna Autopilot.ProcessCmd exception: " + exception.Message);
                     }
                 }
             }
@@ -601,11 +677,11 @@ namespace IngameScript
             }
             try
             {
-                Autopilot.CommanderTick();
+                Autopilot.AutopilotTick();
             }
             catch (Exception exception)
             {
-                Logger.Err("Update100 Commander.Tick exception: " + exception.Message);
+                Logger.Err("Update100 Autopilot.Tick exception: " + exception.Message);
             }
             try
             {

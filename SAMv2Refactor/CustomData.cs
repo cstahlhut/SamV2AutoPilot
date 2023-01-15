@@ -26,7 +26,7 @@ namespace IngameScript
         { // CustomData
             public static System.Text.RegularExpressions.Regex customDataRegex =
                 new System.Text.RegularExpressions.Regex("\\s*" 
-                + MAIN_CMD_TAG + "\\.([a-zA-Z0-9]*)([:=]{1}([\\S]*))?",
+                + MAIN_CMD_TAG + "\\.([a-zA-Z0-9_]*)([:=]{1}([\\S]*))?",
                     System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             private static System.Text.RegularExpressions.Match match;
             private static char[] lineSeparator = new char[] { '\n' };
@@ -63,8 +63,7 @@ namespace IngameScript
                     {
                         if (match.Groups[1].Value != "") // Check if anything after MAIN_CMD_TAG
                         {
-                            // Not sure - its looking for some long string?
-                            if (match.Groups[3].Value != "")
+                            if (match.Groups[3].Value != "") // Not sure
                             {
                                 attributeCap = Helper.Capitalize(match.Groups[1].Value);
                                 if (attributeCap != "")
@@ -80,6 +79,7 @@ namespace IngameScript
                             {
                                 // Convert all entered commands to upper case for matching
                                 tagUpper = match.Groups[1].Value.ToUpper();
+                                // Logger.Info(tagUpper); DEBUG for TAGS
                                 if (blockProfile.exclusiveTags.Contains(tagUpper))
                                 {
                                     if (exclusiveFound)
@@ -99,7 +99,7 @@ namespace IngameScript
                                 continue;
                             }
                         }
-                        // If just MAIN_CMD_TAG, add a . and go to next line
+                        // If just MAIN_CMD_TAG, add a . and go to next line?
                         build += MAIN_CMD_TAG + ".\n"; 
                         continue;
                     }
