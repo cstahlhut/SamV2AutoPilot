@@ -35,6 +35,7 @@ namespace IngameScript
 
             // ** SCA START **
             public static bool allowEscapeNoseUp;
+            public static bool slowOnApproach;
             public static double seaElevationVelocity = 0;
             public static double distanceToGround;
             public static bool turnNoseUp; //true when in gravity but nose would be up
@@ -65,10 +66,12 @@ namespace IngameScript
                 {Base6Directions.Direction.Up,0},
             };
 
+            public static double autoCruiseAltitude = double.PositiveInfinity;
             public static double GetMaxThrust(Vector3D dir)
             {
                 var remoteControl = RemoteControl.block.WorldMatrix.GetClosestDirection(-dir);
-                return maxThrust.Where(kvp => kvp.Value != 0 && kvp.Key != remoteControl).Min(kvp => kvp.Value);
+                return maxThrust.Where(kvp => kvp.Value != 0
+                    && kvp.Key != remoteControl).Min(kvp => kvp.Value);
             }
 
             public static void RefreshSituationbParameters()

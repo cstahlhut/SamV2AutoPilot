@@ -175,6 +175,7 @@ namespace IngameScript
         private static float DISTANCE_CHECK_TOLERANCE = 0.15f; // Script will assume the ship has reached the target position once the distance is lower than this.
         private static double ROTATION_CHECK_TOLERANCE = 0.015; // Scrip will assume the ship has reached the target rotation once the rotation thresholds are lower than this.
         private static float COLLISION_CORRECTION_ANGLE = (float)Math.PI / 7.5f;
+        private static float BRAKE_THRUST_TRIGGER_DIFFERENCE = 3.0f; //the threshold on which the ship hard brakes when going too fast
         //VV If enabled, this will be the ground-to-air elevation at which the nose will point toward the target when leaving the atmosphere
         private static float ESCAPE_NOSE_UP_ELEVATION = 2000.0f;
 

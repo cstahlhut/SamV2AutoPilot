@@ -37,6 +37,23 @@ namespace IngameScript
                 return dock;
             }
 
+            public static Dock NewDock(Waypoint wp, string name)
+            {
+                return NewDock(wp.positionAndOrientation, name);
+            }
+
+            public static Dock NewDock(PositionAndOrientation pando, string name)
+            {
+                Dock dock = new Dock
+                {
+                    posAndOrientation = pando,
+                    gridName = "Manual",
+                    blockName = name
+                };
+                return dock;
+            }
+
+
             public PositionAndOrientation posAndOrientation;
             public List<VectorPath> approachPath = new List<VectorPath>();
             public VRage.Game.MyCubeSize cubeSize;

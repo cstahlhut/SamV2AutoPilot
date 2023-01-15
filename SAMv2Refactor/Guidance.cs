@@ -28,6 +28,8 @@ namespace IngameScript
             private static Vector3D desiredFront = new Vector3D();
             private static Vector3D desiredUp = new Vector3D();
             private static float desiredSpeed = MAX_SPEED;
+            private static Waypoint waypoint = null; // ** SCA ** 
+            private const double planetUpDiffThreshold = 0.5;
 
             public static void Set(Waypoint wp)
             {
@@ -35,6 +37,7 @@ namespace IngameScript
                 desiredFront = wp.positionAndOrientation.forward;
                 desiredUp = wp.positionAndOrientation.up;
                 desiredSpeed = wp.maxSpeed;
+                waypoint = wp;
             }
 
             public static void Release()
@@ -49,15 +52,52 @@ namespace IngameScript
                 }
             }
 
-            public static void Tick()
+            // ** SCA - Planet related **
+            public static void ThrusterRelease()
             {
-                Guidance.StanceTick();
+                foreach (IMyThrust thruster in GridBlocks.thrusterBlocks)
+                {
+                    thruster.ThrustOverride = 0;
+                }
+            }
+
+            // ** SCA - Planet related **
+            public static void ThrusterPlanetarySlowdown()
+            {
+                if (Situation.inGravity && Navigation.waypoints.Count != 0
+                    && Navigation.waypoints[0].type == Waypoint.wpType.NAVIGATING)
+                {
+                    //Vector3D.Up();
+                    foreach (IMyThrust thruster in GridBlocks.thrusterBlocks)
+                    {
+                        if (thruster.Orientation.Forward != Base6Directions.Direction.Down &&
+                            thruster.Orientation.Forward != Base6Directions.Direction.Up)
+                        {
+                            thruster.ThrustOverride = 0;
+                        }
+                    }
+                }
+                else
+                {
+                    ThrusterRelease();
+                }
+            }
+
+            public static void GuidanceTick()
+            {
+                Guidance.PosAndOriTick();
                 Guidance.GyroTick();
                 Guidance.ThrusterTick();
             }
 
             public static bool Done()
             { // Guidance.Done
+
+                // SC Version //
+                // *********************** was at pathLen <= 0.1f
+                // return worldVector.Length() < 0.05 && pathLen <= 0.1f; 
+                // *************
+
                 return (Math.Abs(elevation) <= ROTATION_CHECK_TOLERANCE * 2
                     && Math.Abs(azimuth) <= ROTATION_CHECK_TOLERANCE * 2
                     && Math.Abs(roll) <= ROTATION_CHECK_TOLERANCE * 2
@@ -71,7 +111,7 @@ namespace IngameScript
             private static Vector3D pathNormal, path, aimTarget, upVector, aimVector;
             public static float pathLen;
 
-            private static void StanceTick()
+            private static void PosAndOriTick()
             {
                 path = desiredPosition - Situation.position;
                 pathLen = (float)path.Length();
@@ -92,13 +132,42 @@ namespace IngameScript
                         aimTarget = Situation.position + aimVector * Situation.radius;
                     }
                 }
+
+                Vector3D targetDirection = Vector3D.Normalize(aimTarget - Situation.position);
                 if (Situation.inGravity && !Situation.ignoreGravity)
                 {
                     upVector = (desiredUp == Vector3D.Zero) ? Situation.gravityUpVector : desiredUp;
                 }
-                else
+                //was just an else (change this back to else if script breaks)
+                else if (!Situation.turnNoseUp) 
                 {
                     upVector = (desiredUp == Vector3D.Zero) ? Vector3D.Cross(aimVector, Situation.leftVector) : desiredUp;
+                    //reset the diff so that it won't tilt the ship at the wrong time (when not in gravity well)
+                    //planetDirDifference = 0; 
+                }
+                // ** OG Version of above **
+                //else
+                //{
+                //    upVector = (desiredUp == Vector3D.Zero) ? Vector3D.Cross(aimVector, Situation.leftVector) : desiredUp;
+                //}
+                
+                // ** SCA ***
+                else
+                {
+                    Vector3D planetUpVector = Vector3D.Normalize(RemoteControl.block.GetNaturalGravity() * -1);
+                    Vector3D desiredUpVector = Situation.upVector;
+
+                    if (waypoint.type == Waypoint.wpType.CONVERGING || waypoint.type == Waypoint.wpType.CRUISING)
+                    {
+                        Vector3D newUpVector = Vector3D.ProjectOnPlane(ref planetUpVector, ref targetDirection);
+                        newUpVector = Vector3D.Normalize(newUpVector);
+                        desiredUpVector = newUpVector;
+                    }
+
+                    upVector = (desiredUp == Vector3D.Zero) ?
+                        //Vector3D.CalculatePerpendicularVector(Vector3D.Normalize(Vector3D.Cross(aimVector, planetUpVector))) //was just working (abandoned due to strange orientation of dedicated servers
+                        //Vector3D.Cross(aimVector, Vector3D.CalculatePerpendicularVector(Vector3D.Normalize(planetUpVector))) 
+                        desiredUpVector : desiredUp; //was "desiredUp"
                 }
             }
 
@@ -183,6 +252,13 @@ namespace IngameScript
                             thruster.ThrustOverridePercentage = ((leftChange > 0) ? IDLE_POWER : (Guidance.Drain(ref leftChange, thruster.MaxEffectiveThrust)));
                             break;
                     }
+                }
+                
+                // ** SCA - Planet related **
+                /**************** REMOVE BELOW IF THE SHIP BREAKS *************************/
+                if (desiredSpeed < Situation.linearVelocity.Length() - BRAKE_THRUST_TRIGGER_DIFFERENCE)
+                {
+                    ThrusterPlanetarySlowdown();
                 }
             }
 

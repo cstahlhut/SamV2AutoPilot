@@ -27,7 +27,7 @@ namespace IngameScript
             private static string[] empty = new string[] { };
             private static string[] ignore = new string[] { IGNORE_TAG };
             private static string[] name = new string[] { NAME_TAG };
-            private static string[] meTags = new string[] { "DEBUG", ADVERTISE_TAG, NO_DAMPENERS_TAG, IGNORE_GRAVITY_TAG, LEADER_TAG };
+            private static string[] meTags = new string[] { "DEBUG", ADVERTISE_TAG, NO_DAMPENERS_TAG, IGNORE_GRAVITY_TAG, ESCAPE_NOSE_UP_TAG, LEADER_TAG };
             private static string[] exclusiveTags = new string[] { LIST_MODE_TAG, LOOP_MODE_TAG };
             private static string[] pbAttributes = new string[]{
                 FOLLOW_TAG, FOLLOW_FRONT_TAG, FOLLOW_UP_TAG, FOLLOW_RIGHT_TAG, 
@@ -35,7 +35,8 @@ namespace IngameScript
                 APPROACH_DISTANCE_TAG, DOCK_DISTANCE_TAG, UNDOCK_DISTANCE_TAG,
                 DOCK_SPEED_TAG, TAXI_SPEED_TAG, MAX_SPEED_TAG, AGGRO_TAG,
                 CONVERGING_SPEED_TAG, MASS_EXCESS_TAG, TAXI_PANEL_DISTANCE_TAG,
-                APPROACH_SPEED_TAG, EFFECTIVE_THRUST_TAG};
+                APPROACH_SPEED_TAG, EFFECTIVE_THRUST_TAG,
+                ESCAPE_NOSE_UP_ELEVATION_TAG, DESCEND_NOSE_DOWN_ELEVATION_TAG};
             private static string[] textPanelTags = new string[] { "OVR" };
             private static string[] textPanelExclusiveTags = new string[] { "LOG", "NAV", "CONF", "DATA", "STAT" };
             private static string[] cockpitPanelTags = new string[] { "OVR" };
