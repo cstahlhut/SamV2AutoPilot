@@ -1,21 +1,7 @@
-﻿using Sandbox.Game.EntityComponents;
-using Sandbox.ModAPI.Ingame;
-using Sandbox.ModAPI.Interfaces;
-using SpaceEngineers.Game.ModAPI.Ingame;
+﻿using Sandbox.ModAPI.Ingame;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
-using VRage;
-using VRage.Collections;
-using VRage.Game;
-using VRage.Game.Components;
-using VRage.Game.GUI.TextPanel;
-using VRage.Game.ModAPI.Ingame;
-using VRage.Game.ModAPI.Ingame.Utilities;
-using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
 
 namespace IngameScript
@@ -65,7 +51,7 @@ namespace IngameScript
                             //waypoints[0].maxSpeed = APPROACHING_SPEED;
                         }
                         break;
-                        //goto case Waypoint.wpType.APPROACHING;
+                    //goto case Waypoint.wpType.APPROACHING;
                     case Waypoint.wpType.NAVIGATING:
                         break;
                     case Waypoint.wpType.CRUISING:
@@ -170,20 +156,20 @@ namespace IngameScript
                     }
                     Vector3D desiredDestination = desiredDock ?? Vector3D.NegativeInfinity; //You can trust this to be valid coordinate (needed a default value to satisfy the compiler)
                     Vector3D dockDirNotNormed = desiredDestination - Situation.position;
-                    bool closeEnough = Vector3D.Distance(desiredDestination, Situation.position) 
+                    bool closeEnough = Vector3D.Distance(desiredDestination, Situation.position)
                         < Situation.autoCruiseAltitude * 2; //Close enough to start descending?
                     Vector3D dockDir = Vector3D.Normalize(dockDirNotNormed); //Direction of the destination compared to the vessel in question
                     bool toAbove = Vector3D.Dot(dockDir, gravityUpNorm) > 0.1; //Is the destination above the ship
                     bool directlyBelow;
-                    if (Vector3D.Dot(dockDir, gravityUpNorm) 
-                        < -0.95f && Vector3D.Distance(desiredDestination, Situation.position) 
+                    if (Vector3D.Dot(dockDir, gravityUpNorm)
+                        < -0.95f && Vector3D.Distance(desiredDestination, Situation.position)
                         < Vector3D.Distance(Situation.planetCenter, Situation.position))
                         directlyBelow = true;
                     else
                         directlyBelow = false;
 
-                    if (!closeEnough && !toAbove && !directlyBelow && (waypoints[0].type 
-                        & (Waypoint.wpType.CONVERGING | Waypoint.wpType.CRUISING 
+                    if (!closeEnough && !toAbove && !directlyBelow && (waypoints[0].type
+                        & (Waypoint.wpType.CONVERGING | Waypoint.wpType.CRUISING
                         | Waypoint.wpType.NAVIGATING)) != 0)
                     { //all conditions must be true to cruise
                         Vector3D DesiredCruiseToPoint; //This is where SAM will try to got when cruising. Be sure to have this var set by the time your code exits
@@ -199,7 +185,7 @@ namespace IngameScript
                         else if (seaLevelAltitude - 100 >= Situation.autoCruiseAltitude)
                         {                        //(Max angle rads) / ...
                             ClimbAngle = (float)(-((Math.PI / 2) / (Math.PI / 2)) * Math.Acos(2 *
-                                ((altitudeGravityStart - seaLevelAltitude) 
+                                ((altitudeGravityStart - seaLevelAltitude)
                                 / (altitudeGravityStart - Situation.autoCruiseAltitude)) - 1));
                         }
                         else
@@ -393,7 +379,8 @@ namespace IngameScript
             {
                 if (ArrivalWaypoint == null)
                 {
-                    ArrivalWaypoint = waypoints.Last(delegate (Waypoint w) {
+                    ArrivalWaypoint = waypoints.Last(delegate (Waypoint w)
+                    {
                         return w.type == Waypoint.wpType.CONVERGING;
                     });
                     /*foreach (Waypoint w in waypoints)
@@ -440,7 +427,7 @@ namespace IngameScript
                 Guidance.GuidanceTick();
                 if (waypoints[0].type == Waypoint.wpType.HOPPING)
                 {
-                    if ((waypoints[0].positionAndOrientation.position - Situation.position).Length() 
+                    if ((waypoints[0].positionAndOrientation.position - Situation.position).Length()
                         < APPROACH_DISTANCE)
                     {
                         waypoints.Clear();

@@ -1,21 +1,5 @@
-﻿using Sandbox.Game.EntityComponents;
-using Sandbox.ModAPI.Ingame;
-using Sandbox.ModAPI.Interfaces;
-using SpaceEngineers.Game.ModAPI.Ingame;
+﻿using Sandbox.ModAPI.Ingame;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using VRage;
-using VRage.Collections;
-using VRage.Game;
-using VRage.Game.Components;
-using VRage.Game.GUI.TextPanel;
-using VRage.Game.ModAPI.Ingame;
-using VRage.Game.ModAPI.Ingame.Utilities;
-using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
 
 namespace IngameScript
@@ -26,7 +10,7 @@ namespace IngameScript
         {   //ConnectorControl
             //private static List<IMyShipConnector> connectors = null;
             private static int connectAttempts = 0;
-            
+
 
             public static void AttemptConnect()
             {
@@ -61,7 +45,7 @@ namespace IngameScript
                 Signal.Send(Signal.SignalType.DOCK);
                 if (!Block.HasProperty(GridBlocks.masterProgrammableBlock.EntityId, NO_DAMPENERS_TAG))
                 {
-                    Logistics.Dampeners(false); // turn off dampners
+                    Logistics.SetDampnersOn(false); // turn off dampeners
                 }
             }
 
@@ -108,6 +92,8 @@ namespace IngameScript
                     if (connector.Status == MyShipConnectorStatus.Connected)
                     {
                         connected = true;
+
+                        // If Grid is not static turn off dampners
                         if (!connector.OtherConnector.CubeGrid.IsStatic)
                         {
                             RemoteControl.block.DampenersOverride = false;

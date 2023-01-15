@@ -1,21 +1,5 @@
-﻿using Sandbox.Game.EntityComponents;
-using Sandbox.ModAPI.Ingame;
-using Sandbox.ModAPI.Interfaces;
-using SpaceEngineers.Game.ModAPI.Ingame;
+﻿using Sandbox.ModAPI.Ingame;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using VRage;
-using VRage.Collections;
-using VRage.Game;
-using VRage.Game.Components;
-using VRage.Game.GUI.TextPanel;
-using VRage.Game.ModAPI.Ingame;
-using VRage.Game.ModAPI.Ingame.Utilities;
-using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
 
 namespace IngameScript
@@ -129,7 +113,7 @@ namespace IngameScript
                     if (Situation.inGravity && !Situation.ignoreGravity)
                     {
                         aimTarget = Situation.position + Vector3D.Normalize(
-                            Vector3D.ProjectOnPlane(ref aimVector, ref Situation.gravityUpVector)) 
+                            Vector3D.ProjectOnPlane(ref aimVector, ref Situation.gravityUpVector))
                             * Situation.radius;
                     }
                     else
@@ -217,11 +201,11 @@ namespace IngameScript
                 foreach (IMyGyro gyro in GridBlocks.gyroBlocks)
                 {
                     localVector = Vector3.Transform(worldVector, Matrix.Transpose(gyro.WorldMatrix.GetOrientation()));
-                    gyro.Pitch = (float)MathHelper.Clamp((-localVector.X 
+                    gyro.Pitch = (float)MathHelper.Clamp((-localVector.X
                         * GYRO_GAIN), -GYRO_MAX_ANGULAR_VELOCITY, GYRO_MAX_ANGULAR_VELOCITY);
-                    gyro.Yaw = (float)MathHelper.Clamp(((-localVector.Y) 
+                    gyro.Yaw = (float)MathHelper.Clamp(((-localVector.Y)
                         * GYRO_GAIN), -GYRO_MAX_ANGULAR_VELOCITY, GYRO_MAX_ANGULAR_VELOCITY);
-                    gyro.Roll = (float)MathHelper.Clamp(((-localVector.Z) 
+                    gyro.Roll = (float)MathHelper.Clamp(((-localVector.Z)
                         * GYRO_GAIN), -GYRO_MAX_ANGULAR_VELOCITY, GYRO_MAX_ANGULAR_VELOCITY);
                     gyro.GyroOverride = true;
                 }
@@ -253,7 +237,7 @@ namespace IngameScript
                 smooth = Math.Min(Math.Max((desiredSpeed + 1.0f - directVel.Length()) / 2.0f, 0.0f), 1.0f);
                 maxAcc = 1.0f + (maxFrc / Situation.mass) * smooth * smooth * (3.0f - 2.0f * smooth);
                 ttt = Math.Max(TIME_STEP, Math.Abs(maxVel / maxAcc));
-                force += Situation.mass * -2.0 * (pathNormal 
+                force += Situation.mass * -2.0 * (pathNormal
                     * pathLen / ttt / ttt - directNormal * directVel.Length() / ttt); //lone number was -2.0 (revert if breaks)
                 indirectVel = Vector3D.ProjectOnPlane(ref Situation.linearVelocity, ref pathNormal);
                 force += Situation.mass * indirectVel / TIME_STEP;
@@ -272,8 +256,8 @@ namespace IngameScript
                 //upChange = (float)Vector3D.Dot(force, Situation.gridUpVect);
                 //leftChange = (float)Vector3D.Dot(force, Situation.gridLeftVect);
                 //linearVelocity = Situation.linearVelocity / TICK_TIME;
-                
-                
+
+
                 foreach (IMyThrust thruster in GridBlocks.thrusterBlocks)
                 {
                     if (!thruster.IsWorking)
@@ -314,6 +298,7 @@ namespace IngameScript
                             break;
                     }
                 }
+
                 // ** SCA - Planet related **
                 /**************** REMOVE BELOW IF THE SHIP BREAKS *************************/
                 if (desiredSpeed < Situation.linearVelocity.Length() - BRAKE_THRUST_TRIGGER_DIFFERENCE)

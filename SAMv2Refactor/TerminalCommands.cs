@@ -1,21 +1,7 @@
-﻿using Sandbox.Game.EntityComponents;
-using Sandbox.ModAPI.Ingame;
-using Sandbox.ModAPI.Interfaces;
-using SpaceEngineers.Game.ModAPI.Ingame;
+﻿using Sandbox.ModAPI.Ingame;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
-using VRage;
-using VRage.Collections;
-using VRage.Game;
-using VRage.Game.Components;
-using VRage.Game.GUI.TextPanel;
-using VRage.Game.ModAPI.Ingame;
-using VRage.Game.ModAPI.Ingame.Utilities;
-using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
 
 namespace IngameScript
@@ -68,7 +54,7 @@ namespace IngameScript
                 {
                     return;
                 }
-                if (GridBlocks.masterProgrammableBlock.CustomName.Contains(ADVERTISE_TAG) 
+                if (GridBlocks.masterProgrammableBlock.CustomName.Contains(ADVERTISE_TAG)
                     || GridBlocks.masterProgrammableBlock.CustomData.Contains(ADVERTISE_TAG))
                 {
                     screenText = "SAMv2 " + VERSION + " \nTo use Remote Commands on servers\nYou must have an LCD with \nS.A.M.RC\nin the Custom Data.";
@@ -116,10 +102,10 @@ namespace IngameScript
                     }
                     if (programmableBlock.lcdfound == false)
                     {
-                        screenText = "SAMv2 " + VERSION + "\n" 
+                        screenText = "SAMv2 " + VERSION + "\n"
                             + "Advertising Docks = TRUE\n"
                             + "S.A.M.RC LCD NOT FOUND\n"
-                            + "in same construct.\n" 
+                            + "in same construct.\n"
                             + "No Remote Commands may be issued.";
                         Reset();
                         return;
@@ -135,8 +121,8 @@ namespace IngameScript
                             Reset();
                             return;
                         }
-                        if (terminalString[0] == CMD || terminalString[0].Contains("SAMv2 " + VERSION) 
-                            || terminalString[0].Contains("Replace this text") 
+                        if (terminalString[0] == CMD || terminalString[0].Contains("SAMv2 " + VERSION)
+                            || terminalString[0].Contains("Replace this text")
                             || terminalString[0].Contains("S.A.M.RC"))
                         {
                             Reset();
