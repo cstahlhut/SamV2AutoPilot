@@ -35,7 +35,7 @@ namespace IngameScript
                 {
                     return true;
                 }
-                Logger.Err(MSG_NO_REMOTE_CONTROL);
+                Logger.Err("No Remote Control!");
                 return false;
             }
         }

@@ -86,7 +86,7 @@ namespace IngameScript
                 // If not remote control found exit and throw error to Logger LCD
                 if (RemoteControl.block == null)
                 {
-                    Logger.Err(MSG_NO_REMOTE_CONTROL);
+                    Logger.Err("No Remote Control");
                     return;
                 }
                 leaderGrid.pos = RemoteControl.block.CenterOfMass;

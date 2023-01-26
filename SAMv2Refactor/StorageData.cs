@@ -32,7 +32,7 @@ namespace IngameScript
                     Serializer.Pack(STORAGE_VERSION);
                     Serializer.Pack(DockData.currentDockCount);
                     Serializer.Pack(DockData.docks);
-                    Serializer.Pack(Pilot.listOfDocks);
+                    Serializer.Pack(Pilot.dock);
                 }
                 catch (Exception e)
                 {
@@ -87,7 +87,7 @@ namespace IngameScript
                 }
                 DockData.currentDockCount = Serializer.UnpackInt();
                 DockData.docks = Serializer.UnpackListDock();
-                Pilot.listOfDocks = Serializer.UnpackListDock();
+                Pilot.dock = Serializer.UnpackListDock();
                 List<int> selected = Serializer.UnpackListInt();
                 DockData.selectedDocks.Clear();
                 foreach (int i in selected)
@@ -102,10 +102,10 @@ namespace IngameScript
                         continue;
                     }
                     DockData.dynamic[dock.blockEntityId] = dock;
-                    if (Pilot.listOfDocks.Count != 0 && Pilot.listOfDocks[0].blockEntityId == dock.blockEntityId)
+                    if (Pilot.dock.Count != 0 && Pilot.dock[0].blockEntityId == dock.blockEntityId)
                     {
-                        Pilot.listOfDocks.Clear();
-                        Pilot.listOfDocks.Add(dock);
+                        Pilot.dock.Clear();
+                        Pilot.dock.Add(dock);
                     }
                 }
                 Horizont.angle = Serializer.UnpackFloat();
