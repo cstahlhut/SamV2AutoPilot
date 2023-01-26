@@ -41,15 +41,15 @@ namespace IngameScript
                 TimedRunIf(ref updateSource, updateSource, updateMethod, ref pbRunArgument);
             }
 
-            public static void WriteStats(Program program)
+            public static void WriteStats(Program p)
             {
                 try
                 {
-                    program.Echo("SAMv" + VERSION + "\n" + Pannel.Status() + "\n" + program.shipCommand.UpdateCpuLoadString());
+                    p.Echo("SAMv" + VERSION + "\n" + Pannel.Status() + "\n" + p.shipCommand.UpdateCpuLoadString());
                 }
                 catch (Exception e)
                 {
-                    program.Echo(e.Message);
+                    p.Echo(e.Message);
                 }
             }
         }
