@@ -230,8 +230,8 @@ namespace IngameScript
                 return true;
             }
 
-            private static string speed;
-            private static float speedInt;
+            private static string tagString;
+            private static float parsedTagValue;
             private static double wait;
             private static bool gravity;
             public static void AddMe(IMyProgrammableBlock me)
@@ -244,137 +244,155 @@ namespace IngameScript
                     return;
                 }
 
-                if (Block.GetProperty(terminalBlock.EntityId, MAX_SPEED_TAG, ref speed))
+                // ** MAX_SPEED_TAG **
+                if (Block.GetProperty(terminalBlock.EntityId, MAX_SPEED_TAG, ref tagString))
                 {
-                    if (float.TryParse(speed, out speedInt))
+                    if (float.TryParse(tagString, out parsedTagValue))
                     {
-                        if (MAX_SPEED != speedInt)
+                        if (MAX_SPEED != parsedTagValue)
                         {
-                            MAX_SPEED = speedInt;
+                            MAX_SPEED = parsedTagValue;
                             Logger.Info("Maximum speed changed to " + MAX_SPEED);
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, DOCK_SPEED_TAG, ref speed))
+                // ** TAXI_SPEED_TAG **
+                if (Block.GetProperty(terminalBlock.EntityId, TAXI_SPEED_TAG, ref tagString))
                 {
-                    if (float.TryParse(speed, out speedInt))
+                    if (float.TryParse(tagString, out parsedTagValue))
                     {
-                        if (DOCKING_SPEED != speedInt)
+                        if (TAXIING_SPEED != parsedTagValue)
                         {
-                            DOCKING_SPEED = speedInt;
-                            Logger.Info("Docking speed changed to " + DOCKING_SPEED);
-                        }
-                    }
-                }
-                if (Block.GetProperty(terminalBlock.EntityId, TAXI_SPEED_TAG, ref speed))
-                {
-                    if (float.TryParse(speed, out speedInt))
-                    {
-                        if (TAXIING_SPEED != speedInt)
-                        {
-                            TAXIING_SPEED = speedInt;
+                            TAXIING_SPEED = parsedTagValue;
                             Logger.Info("Taxiing speed changed to " + TAXIING_SPEED);
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, TAXI_DISTANCE_TAG, ref speed))
+                // ** APPROACH_DISTANCE_TAG **
+                if (Block.GetProperty(terminalBlock.EntityId, APPROACH_DISTANCE_TAG, ref tagString))
                 {
-                    if (float.TryParse(speed, out speedInt))
+                    if (float.TryParse(tagString, out parsedTagValue))
                     {
-                        if (TAXIING_DISTANCE != (float)speedInt)
+                        if (APPROACH_DISTANCE != (float)parsedTagValue)
                         {
-                            TAXIING_DISTANCE = (float)speedInt;
-                            Logger.Info("Taxiing distance changed to " + TAXIING_DISTANCE);
-                        }
-                    }
-                }
-                if (Block.GetProperty(terminalBlock.EntityId, TAXI_PANEL_DISTANCE_TAG, ref speed))
-                {
-                    if (float.TryParse(speed, out speedInt))
-                    {
-                        if (TAXIING_PANEL_DISTANCE != (float)speedInt)
-                        {
-                            TAXIING_PANEL_DISTANCE = (float)speedInt;
-                            Logger.Info("Taxiing panel distance changed to " + TAXIING_PANEL_DISTANCE);
-                        }
-                    }
-                }
-                if (Block.GetProperty(terminalBlock.EntityId, APPROACH_DISTANCE_TAG, ref speed))
-                {
-                    if (float.TryParse(speed, out speedInt))
-                    {
-                        if (APPROACH_DISTANCE != (float)speedInt)
-                        {
-                            APPROACH_DISTANCE = (float)speedInt;
+                            APPROACH_DISTANCE = (float)parsedTagValue;
                             Logger.Info("Approach distance changed to " + APPROACH_DISTANCE);
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, APPROACH_SPEED_TAG, ref speed))
+                
+                // ** DOCK_DISTANCE_TAG **
+                if (Block.GetProperty(terminalBlock.EntityId, DOCK_DISTANCE_TAG, ref tagString))
                 {
-                    if (float.TryParse(speed, out speedInt))
+                    if (float.TryParse(tagString, out parsedTagValue))
                     {
-                        if (APPROACHING_SPEED != speedInt)
+                        if (DOCK_DISTANCE != (float)parsedTagValue)
                         {
-                            APPROACHING_SPEED = speedInt;
-                            Logger.Info("Approaching speed changed to " + APPROACHING_SPEED);
-                        }
-                    }
-                }
-                if (Block.GetProperty(terminalBlock.EntityId, DOCK_DISTANCE_TAG, ref speed))
-                {
-                    if (float.TryParse(speed, out speedInt))
-                    {
-                        if (DOCK_DISTANCE != (float)speedInt)
-                        {
-                            DOCK_DISTANCE = (float)speedInt;
+                            DOCK_DISTANCE = (float)parsedTagValue;
                             Logger.Info("Docking distance changed to " + DOCK_DISTANCE);
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, UNDOCK_DISTANCE_TAG, ref speed))
+
+                // ** DOCK_SPEED_TAG **
+                if (Block.GetProperty(terminalBlock.EntityId, DOCK_SPEED_TAG, ref tagString))
                 {
-                    if (float.TryParse(speed, out speedInt))
+                    if (float.TryParse(tagString, out parsedTagValue))
                     {
-                        if (UNDOCK_DISTANCE != (float)speedInt)
+                        if (DOCK_SPEED != parsedTagValue)
                         {
-                            UNDOCK_DISTANCE = (float)speedInt;
+                            DOCK_SPEED = parsedTagValue;
+                            Logger.Info("Docking speed changed to " + DOCK_SPEED);
+                        }
+                    }
+                }
+
+                // ** UNDOCK_DISTANCE_TAG **
+                if (Block.GetProperty(terminalBlock.EntityId, UNDOCK_DISTANCE_TAG, ref tagString))
+                {
+                    if (float.TryParse(tagString, out parsedTagValue))
+                    {
+                        if (UNDOCK_DISTANCE != (float)parsedTagValue)
+                        {
+                            UNDOCK_DISTANCE = (float)parsedTagValue;
                             Logger.Info("Undocking distance changed to " + UNDOCK_DISTANCE);
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, WAIT_TAG, ref speed))
+
+                // ** APPROACH_SPEED_TAG **
+                if (Block.GetProperty(terminalBlock.EntityId, APPROACH_SPEED_TAG, ref tagString))
                 {
-                    if (Double.TryParse(speed, out wait))
+                    if (float.TryParse(tagString, out parsedTagValue))
                     {
-                        Autopilot.waitTime = TimeSpan.FromSeconds(wait).Ticks;
-                        Logger.Info("Wait time changed to " + Autopilot.waitTime);
+                        if (APPROACH_SPEED != parsedTagValue)
+                        {
+                            APPROACH_SPEED = parsedTagValue;
+                            Logger.Info("Approaching speed changed to " + APPROACH_SPEED);
+                        }
                     }
                 }
-                gravity = Block.HasProperty(terminalBlock.EntityId, IGNORE_GRAVITY_TAG);
-                if (gravity != Situation.ignoreGravity)
+
+                // ** APPROACH_SAFE_DISTANCE_TAG **
+                if (Block.GetProperty(terminalBlock.EntityId, APPROACH_SAFE_DISTANCE_TAG, ref tagString))
                 {
-                    Situation.ignoreGravity = gravity;
-                    Logger.Info("Ship orientation " + (gravity ? "ignoring" : "using") + " gravity for alignment.");
-                }
-                if (Block.GetProperty(terminalBlock.EntityId, ESCAPE_NOSE_UP_ELEVATION_TAG, ref speed) && Situation.allowEscapeNoseUp)
-                {
-                    if (float.TryParse(speed, out speedInt))
+                    if (float.TryParse(tagString, out parsedTagValue))
                     {
-                        if (ESCAPE_NOSE_UP_ELEVATION != (float)speedInt)
+                        if (APPROACH_SAFE_DISTANCE != (float)parsedTagValue)
                         {
-                            ESCAPE_NOSE_UP_ELEVATION = (float)speedInt;
+                            APPROACH_SAFE_DISTANCE = (float)parsedTagValue;
+                            Logger.Info("Approach safe distance changed to " + APPROACH_SAFE_DISTANCE);
+                        }
+                    }
+                }
+
+                // ** CONVERGING_SPEED_TAG **
+                if (Block.GetProperty(terminalBlock.EntityId, CONVERGING_SPEED_TAG, ref tagString))
+                {
+                    if (float.TryParse(tagString, out parsedTagValue))
+                    {
+                        if (CONVERGING_SPEED != (float)parsedTagValue)
+                        {
+                            CONVERGING_SPEED = (float)parsedTagValue;
+                            Logger.Info("Converging speed changed to " + CONVERGING_SPEED);
+                        }
+                    }
+                }
+
+                // ** ARRIVAL_DISTANCE_TAG **
+                if (Block.GetProperty(terminalBlock.EntityId, ARRIVAL_DISTANCE_TAG, ref tagString))
+                {
+                    if (float.TryParse(tagString, out parsedTagValue))
+                    {
+                        if (ARRIVAL_DISTANCE != (float)parsedTagValue)
+                        {
+                            ARRIVAL_DISTANCE = (float)parsedTagValue;
+                            Logger.Info("Arrival distance changed to " + ARRIVAL_DISTANCE);
+                        }
+                    }
+                }
+
+                // ** ESCAPE_NOSE_UP_ELEVATION_TAG **
+                if (Block.GetProperty(terminalBlock.EntityId, ESCAPE_NOSE_UP_ELEVATION_TAG, ref tagString) && Situation.allowEscapeNoseUp)
+                {
+                    if (float.TryParse(tagString, out parsedTagValue))
+                    {
+                        if (ESCAPE_NOSE_UP_ELEVATION != (float)parsedTagValue)
+                        {
+                            ESCAPE_NOSE_UP_ELEVATION = (float)parsedTagValue;
                             Logger.Info("Escape nose up ground-to-air elevation changed to " + ESCAPE_NOSE_UP_ELEVATION);
                         }
                     }
                 }
-                if (Block.GetProperty(terminalBlock.EntityId, DESCEND_NOSE_DOWN_ELEVATION_TAG, ref speed) && Situation.allowEscapeNoseUp)
+
+                // ** DESCEND_NOSE_DOWN_ELEVATION_TAG **
+                if (Block.GetProperty(terminalBlock.EntityId, DESCEND_NOSE_DOWN_ELEVATION_TAG, ref tagString) && Situation.allowEscapeNoseUp)
                 {
-                    if (float.TryParse(speed, out speedInt))
+                    if (float.TryParse(tagString, out parsedTagValue))
                     {
-                        if (Situation.noseDownElevation != (float)speedInt)
+                        if (Situation.noseDownElevation != (float)parsedTagValue)
                         {
-                            Situation.noseDownElevation = (float)speedInt;
+                            Situation.noseDownElevation = (float)parsedTagValue;
                             Logger.Info($"Descend nose down ground-to-air elevation changed to {Situation.noseDownElevation:N0}");
                         }
                     }
@@ -387,6 +405,27 @@ namespace IngameScript
                     Situation.noseDownElevation = ESCAPE_NOSE_UP_ELEVATION;
                 }
 
+                // ** AUTO_CRUISE_TAG **
+                string dist = string.Empty;
+                double outDist = Situation.autoCruiseAltitude;
+                if (Block.GetProperty(terminalBlock.EntityId, AUTO_CRUISE_TAG, ref dist))
+                {
+                    if (double.TryParse(dist, out outDist))
+                    {
+                        if (Situation.autoCruiseAltitude != (float)outDist)
+                        {
+                            Situation.autoCruiseAltitude = (float)outDist;
+                            Logger.Info($"Autocruise set to {Situation.autoCruiseAltitude:N0}.");
+                        }
+                    }
+                }
+                else if (!double.IsNaN(Situation.autoCruiseAltitude))
+                {
+                    Situation.autoCruiseAltitude = double.NaN;
+                    Logger.Info("Autocruise disabled. Atmospheric flight might be slow.");
+                }
+
+                // ** ESCAPE_NOSE_UP_TAG **
                 bool noseUp = Block.HasProperty(terminalBlock.EntityId, ESCAPE_NOSE_UP_TAG);
                 if (noseUp != Situation.allowEscapeNoseUp)
                 {
@@ -394,6 +433,42 @@ namespace IngameScript
                     Logger.Info(noseUp ? "Escape atmosphere nose up is now enabled" : "Escape atmosphere nose up is now disabled.");
                 }
 
+                // ** SLOW_ON_APPROACH_TAG **
+                bool slowDown = Block.HasProperty(terminalBlock.EntityId, SLOW_ON_APPROACH_TAG);
+                if (slowDown != Situation.slowOnApproach)
+                {
+                    Situation.slowOnApproach = slowDown;
+                    Logger.Info(slowDown ? "Slow down when approaching enabled" : "Slow down when approaching disabled");
+                }
+
+                // ** ALLOW_DIRECT_ALIGNMENT_TAG **
+                bool alignDirectly = Block.HasProperty(terminalBlock.EntityId, ALLOW_DIRECT_ALIGNMENT_TAG);
+                if (alignDirectly != Situation.alignDirectly)
+                {
+                    Situation.alignDirectly = alignDirectly;
+                    Logger.Info(alignDirectly ? "Now aligning directly in space." : "aligning directly in space disabled");
+                }
+
+                // ** WAIT_TAG **
+                if (Block.GetProperty(terminalBlock.EntityId, WAIT_TAG, ref tagString))
+                {
+                    if (Double.TryParse(tagString, out wait))
+                    {
+                        Autopilot.waitTime = TimeSpan.FromSeconds(wait).Ticks;
+                        Logger.Info("Wait time changed to " + Autopilot.waitTime);
+                    }
+                }
+
+                // ** IGNORE_GRAVITY_TAG **
+                gravity = Block.HasProperty(terminalBlock.EntityId, IGNORE_GRAVITY_TAG);
+                if (gravity != Situation.ignoreGravity)
+                {
+                    Situation.ignoreGravity = gravity;
+                    Logger.Info("Ship orientation " + (gravity ? "ignoring" : "using") + " gravity for alignment.");
+                }
+
+                // ** LIST_MODE_TAG **
+                // ** LOOP_MODE_TAG **
                 if (Block.HasProperty(terminalBlock.EntityId, LIST_MODE_TAG))
                 {
                     Autopilot.mode = Autopilot.Mode.LIST;

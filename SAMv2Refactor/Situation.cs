@@ -31,15 +31,16 @@ namespace IngameScript
             public static Vector3D naturalGravity;
             public static bool planetDetected;
             public static Vector3D planetCenter = new Vector3D();
-            public static bool inGravity;
+            public static bool inGravity; //false when sufficiantly elevated above ground when "allowEscapeNoseUp" is turned on
 
             // ** SCA START **
-            public static bool allowEscapeNoseUp;
-            public static bool slowOnApproach;
-            public static double seaElevationVelocity = 0;
-            public static double distanceToGround;
             public static bool turnNoseUp; //true when in gravity but nose would be up
             public static float noseDownElevation = ESCAPE_NOSE_UP_ELEVATION;
+            public static bool allowEscapeNoseUp;
+            public static bool slowOnApproach;
+            public static double distanceToGround;
+            public static double seaElevationVelocity = 0;
+            public static bool alignDirectly = false;
             // ** SCA END **
 
             public static double radius;
@@ -57,6 +58,8 @@ namespace IngameScript
             public static Vector3D gridUpVect;
             public static Vector3D gridLeftVect;
 
+            
+
             private static Dictionary<Base6Directions.Direction, double> maxThrust = new Dictionary<Base6Directions.Direction, double>(){
                 {Base6Directions.Direction.Backward,0},
                 {Base6Directions.Direction.Down,0},
@@ -66,15 +69,30 @@ namespace IngameScript
                 {Base6Directions.Direction.Up,0},
             };
 
+            private static double forwardChange, upChange, leftChange;
+            private static Vector3D maxT;
             public static double autoCruiseAltitude = double.PositiveInfinity;
+            
+            //public static double GetMaxThrust(Vector3D dir)
+            //{
+            //    var remoteControl = RemoteControl.block.WorldMatrix.GetClosestDirection(-dir);
+            //    return maxThrust.Where(kvp => kvp.Value != 0
+            //        && kvp.Key != remoteControl).Min(kvp => kvp.Value);
+            //}
+
             public static double GetMaxThrust(Vector3D dir)
             {
-                var remoteControl = RemoteControl.block.WorldMatrix.GetClosestDirection(-dir);
-                return maxThrust.Where(kvp => kvp.Value != 0
-                    && kvp.Key != remoteControl).Min(kvp => kvp.Value);
+                forwardChange = Vector3D.Dot(dir, Situation.gridForwardVect);
+                upChange = Vector3D.Dot(dir, Situation.gridUpVect);
+                leftChange = Vector3D.Dot(dir, Situation.gridLeftVect);
+                maxT = new Vector3D();
+                maxT.X = forwardChange * maxThrust[(forwardChange > 0) ? Base6Directions.Direction.Forward : Base6Directions.Direction.Backward];
+                maxT.Y = upChange * maxThrust[(upChange > 0) ? Base6Directions.Direction.Up : Base6Directions.Direction.Down];
+                maxT.Z = leftChange * maxThrust[(leftChange > 0) ? Base6Directions.Direction.Left : Base6Directions.Direction.Right];
+                return MAX_TRUST_UNDERESTIMATE_PERCENTAGE * maxT.Length();
             }
 
-            public static void RefreshSituationbParameters()
+            public static void RefreshSituationParameters()
             {
                 foreach (Base6Directions.Direction direction in maxThrust.Keys.ToList())
                 {
@@ -82,7 +100,7 @@ namespace IngameScript
                 }
                 foreach (IMyThrust thruster in GridBlocks.thrusterBlocks)
                 {
-                    thruster.Enabled = true;
+                    thruster.Enabled = true; // Why do this?
                     if (!thruster.IsWorking)
                     {
                         continue;
@@ -110,7 +128,6 @@ namespace IngameScript
                 planetDetected = RemoteControl.block.TryGetPlanetPosition(out planetCenter);
                 naturalGravity = RemoteControl.block.GetNaturalGravity();
                 inGravity = naturalGravity.Length() >= 0.5;
-
                 if (inGravity)
                 {
                     seaElevationVelocity = Vector3D.Dot(linearVelocity, -Vector3D.Normalize(naturalGravity));

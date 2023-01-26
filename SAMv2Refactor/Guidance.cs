@@ -94,18 +94,18 @@ namespace IngameScript
             { // Guidance.Done
 
                 // SC Version //
-                // *********************** was at pathLen <= 0.1f
-                // return worldVector.Length() < 0.05 && pathLen <= 0.1f; 
+                return worldVector.Length() < 0.05 && pathLen <= 0.1f; // was at pathLen <= 0.1f
                 // *************
 
-                return (Math.Abs(elevation) <= ROTATION_CHECK_TOLERANCE * 2
-                    && Math.Abs(azimuth) <= ROTATION_CHECK_TOLERANCE * 2
-                    && Math.Abs(roll) <= ROTATION_CHECK_TOLERANCE * 2
-                    && pathLen <= DISTANCE_CHECK_TOLERANCE * 2
-                    && ConnectorControl.Connect()) || (Math.Abs(elevation) <= ROTATION_CHECK_TOLERANCE
-                    && Math.Abs(azimuth) <= ROTATION_CHECK_TOLERANCE
-                    && Math.Abs(roll) <= ROTATION_CHECK_TOLERANCE
-                    && pathLen <= DISTANCE_CHECK_TOLERANCE);
+                //// OG Version
+                //return (Math.Abs(elevation) <= ROTATION_CHECK_TOLERANCE * 2
+                //    && Math.Abs(azimuth) <= ROTATION_CHECK_TOLERANCE * 2
+                //    && Math.Abs(roll) <= ROTATION_CHECK_TOLERANCE * 2
+                //    && pathLen <= DISTANCE_CHECK_TOLERANCE * 2
+                //    && ConnectorControl.Connect()) || (Math.Abs(elevation) <= ROTATION_CHECK_TOLERANCE
+                //    && Math.Abs(azimuth) <= ROTATION_CHECK_TOLERANCE
+                //    && Math.Abs(roll) <= ROTATION_CHECK_TOLERANCE
+                //    && pathLen <= DISTANCE_CHECK_TOLERANCE);
             }
 
             private static Vector3D pathNormal, path, aimTarget, upVector, aimVector;
@@ -129,6 +129,9 @@ namespace IngameScript
                     }
                     else
                     {
+                        //if (Math.Abs(planetDirDifference) < planetUpDiffThreshold)
+                        //    aimTarget = Situation.position + Vector3D.Normalize(Vector3D.ProjectOnPlane(ref aimVector, ref Situation.gravityUpVector)) * Situation.radius;
+                        //else
                         aimTarget = Situation.position + aimVector * Situation.radius;
                     }
                 }
@@ -203,22 +206,35 @@ namespace IngameScript
             }
 
             private static float forwardChange, upChange, leftChange, applyPower;
-            private static Vector3D force, linearVelocity, directVel;
-            private static double maxFrc, maxVel;
+            private static Vector3D force, directVel, directNormal, indirectVel;
+            private static double ttt, maxFrc, maxVel, maxAcc, TIME_STEP = 2.5 * TICK_TIME, smooth;
 
             private static void ThrusterTick()
             {
-                maxFrc = Situation.GetMaxThrust(pathNormal);
-                var massA = -110.1f * Situation.mass / maxFrc + 203.3f;
-                var massB = 2.5 * Situation.mass / maxFrc + 2.9;
-                var massC = Math.Min(1.0, Math.Pow((1.0 / massA) * pathLen, 1.0 / massB));
-                maxVel = massC * Math.Sqrt(2.0f * maxFrc * pathLen / Situation.mass);
-                linearVelocity = Situation.linearVelocity / TICK_TIME;
-                directVel = Math.Min(desiredSpeed, maxVel) * pathNormal / TICK_TIME;
-                force = Situation.mass * (-directVel + linearVelocity) + Situation.mass * Situation.naturalGravity;
+                if (pathLen == 0.0f)
+                    return;
+
+                force = Situation.mass * Situation.naturalGravity;
+                directVel = Vector3D.ProjectOnVector(ref Situation.linearVelocity, ref pathNormal);
+                directNormal = Vector3D.Normalize(directVel);
+                if (!directNormal.IsValid())
+                {
+                    directNormal = Vector3D.Zero;
+
+                }
+
+                maxFrc = Situation.GetMaxThrust(pathNormal) - ((Vector3D.Dot(force, pathNormal) > 0) ? Vector3D.ProjectOnVector(ref force, ref pathNormal).Length() : 0.0);
+                maxVel = Math.Sqrt(2.0 * pathLen * maxFrc / Situation.mass);
+                smooth = Math.Min(Math.Max((desiredSpeed + 1.0f - directVel.Length()) / 2.0f, 0.0f), 1.0f);
+                maxAcc = 1.0f + (maxFrc / Situation.mass) * smooth * smooth * (3.0f - 2.0f * smooth);
+                ttt = Math.Max(TIME_STEP, Math.Abs(maxVel / maxAcc));
+                force += Situation.mass * -2.0 * (pathNormal * pathLen / ttt / ttt - directNormal * directVel.Length() / ttt); //lone number was -2.0 (revert if breaks)
+                indirectVel = Vector3D.ProjectOnPlane(ref Situation.linearVelocity, ref pathNormal);
+                force += Situation.mass * indirectVel / TIME_STEP;
                 forwardChange = (float)Vector3D.Dot(force, Situation.gridForwardVect);
                 upChange = (float)Vector3D.Dot(force, Situation.gridUpVect);
                 leftChange = (float)Vector3D.Dot(force, Situation.gridLeftVect);
+
                 foreach (IMyThrust thruster in GridBlocks.thrusterBlocks)
                 {
                     if (!thruster.IsWorking)

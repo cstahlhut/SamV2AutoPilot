@@ -33,7 +33,7 @@ namespace IngameScript
         // to learn more about ingame scripts.
 
         // Sam's Autopilot Manager
-        public static string VERSION = "2.TC1.7";
+        public static string VERSION = "3.CS.0";
 
         //
         // Original Creator: Sam (Magistrator)
@@ -74,16 +74,38 @@ namespace IngameScript
         // -------------------------------------------------------
         private static float HORIZONT_CHECK_DISTANCE = 2000.0f; // How far the script will check for obstacles.
 
-        private static float MAX_SPEED = 95.0f; // Used for NAVIGATING and CONVERGING.
-        private static float APPROACHING_SPEED = 95.0f;
-        private static float TAXIING_SPEED = 10.0f;
-        private static float DOCKING_SPEED = 2.5f;
+        private static float MAX_SPEED = 80.0f; //Speed when navigating (this is done during collision avoidance, not actually top speed)
 
-        private static float APPROACH_DISTANCE = 500.0f; // Ship will start approach mode at this distance.
-        private static float TAXIING_DISTANCE = 10.0f; // How close will the ship get before starting the docking procedure.
-        private static float TAXIING_PANEL_DISTANCE = 5.0f; // When using Path-Docking, the distance from the panel.
-        private static float DOCK_DISTANCE = 5.0f; // Ship will start docking at this distance.
-        private static float UNDOCK_DISTANCE = 10.0f; // Ship will undock to this distance.
+        private static float APPROACH_DISTANCE = 20.0f; //How close to approach the runway/landing pad
+
+        private static float DOCK_DISTANCE = 10.0f; //How close to get when initiating final docking procedure
+
+        private static float DOCK_SPEED = 1.0f; //Ship speed when docking or undocking
+
+        private static float UNDOCK_DISTANCE = 20.0f; // Ship will undock to this distance.
+        
+        private static float APPROACH_SPEED = 2.5f; //how fast the ship moves to get to the docking height
+
+        private static float APPROACH_SAFE_DISTANCE = 5.0f; //How far away the ship hovers from the taxi points, including guidance LCD panels // ** PREV TAXIING_DISTANCE **
+
+        private static float CONVERGING_SPEED = 100.0f; // ** PREV APPROACHING_SPEED **
+
+        private static float TAXIING_SPEED = 2.0f;
+        
+        private static float ARRIVAL_DISTANCE = 2000.0f; //Distance to which the ship must slow down when arriving to its destination // ** PREV APPROACH_DISTANCE **
+                                                        //^^ This should be adjusted to increase if your ship can't brake as fast
+
+        private static float ARRIVAL_SPEED = 10.0f; //Speed of which the which the ship should go when closing in to destination (low speed recommended)
+
+        private static float COLLISION_CORRECTION_ANGLE = (float)Math.PI / 10.0f;
+
+        private static float BRAKE_THRUST_TRIGGER_DIFFERENCE = 3.0f; //the threshold on which the ship hard brakes when going too fast
+
+        private static float ESCAPE_NOSE_UP_ELEVATION = 2000.0f; // Ground-to-air elevation at which the nose will point toward the target when leaving the atmosphere
+
+        private static float DISTANCE_CHECK_TOLERANCE = 0.15f; // Script will assume the ship has reached the target position once the distance is lower than this.
+
+        private static double ROTATION_CHECK_TOLERANCE = 0.015; // Scrip will assume the ship has reached the target rotation once the rotation thresholds are lower than this.
 
         private static int LOG_MAX_LINES = 30;
 
@@ -120,11 +142,12 @@ namespace IngameScript
         */
         private const string NAME_TAG = "NAME";
         private const string ADVERTISE_TAG = "ADVERTISE";
+        private const string TEXT_STYLE_OVERRIDE_TAG = "OVR";
         private const string IGNORE_TAG = "IGNORE";
         private const string MAIN_CONNECTOR_TAG = "MAIN";
         //Some modded connectors are placed backwards to work for some reason. It confuses this script.
         //^^ If the connector goes on backwards, add this tag to the connector to work around that.
-        private const string REVERSE_CONNECTOR_TAG = "REV";
+        private const string CONNECTOR_REVERSE_TAG = "REV";
         private const string LIST_MODE_TAG = "LIST";
         private const string LOOP_MODE_TAG = "LOOP";
         private const string WAIT_TAG = "WAIT";
@@ -139,14 +162,13 @@ namespace IngameScript
         private const string FOLLOW_UP_TAG = "FOLLOW_UP";
         private const string FOLLOW_RIGHT_TAG = "FOLLOW_RIGHT";
         private const string TAXI_SPEED_TAG = "TAXI_SPEED";
-        private const string TAXI_DISTANCE_TAG = "TAXI_DISTANCE";
-        private const string TAXI_PANEL_DISTANCE_TAG = "TAXI_PANEL_DISTANCE";
+        private const string APPROACH_SAFE_DISTANCE_TAG = "APPROACH_SAFE_DISTANCE"; // ** PREV TAXI_DISTANCE_TAG **
         private const string APPROACH_DISTANCE_TAG = "APPROACH_DISTANCE";
         private const string DOCK_DISTANCE_TAG = "DOCK_DISTANCE";
         private const string DOCK_SPEED_TAG = "DOCK_SPEED";
         private const string UNDOCK_DISTANCE_TAG = "UNDOCK_DISTANCE";
         private const string APPROACH_SPEED_TAG = "APPROACH_SPEED";
-        private const string CONVERGING_SPEED_TAG = "CONVERGING_SPEED";        
+        private const string CONVERGING_SPEED_TAG = "CONVERGING_SPEED";
         private static string LEADER_TAG = MAIN_CMD_TAG + LEADER_TAG;
         private static string REMOTE_CMD_TAG = MAIN_CMD_TAG + "CMD";
         private static string REMOTE_CMD_RESPONSE_TAG = MAIN_CMD_TAG + "CMD_RESPONSE";
@@ -159,56 +181,29 @@ namespace IngameScript
         private const string ESCAPE_NOSE_UP_TAG = "ESCAPE_NOSE_UP";
         private const string ESCAPE_NOSE_UP_ELEVATION_TAG = "NOSE_UP_ELEVATION";
         private const string DESCEND_NOSE_DOWN_ELEVATION_TAG = "NOSE_DOWN_ELEVATION";
-        // Slows the ship to taxiing speed when closing in onto the runway or docking connector
-        private const string SLOW_ON_APPROACH_TAG = "SLOW_ON_APPROACH";
-        // In space, should the ship point directly at the destination on navigation started before taking off?
-        // Use the BuildInfo mod to make sure that this is the case.
-        private const string ALLOW_DIRECT_ALIGNMENT_TAG = "ALLOW_DIRECT_ALIGNMENT";
-        private const string AUTO_CRUISE_ATTRIBUTE = "AUTO_CRUISE";
+        private const string SLOW_ON_APPROACH_TAG = "SLOW_ON_APPROACH"; // Slows the ship to taxiing speed when closing in onto the runway or docking connector
+        private const string ALLOW_DIRECT_ALIGNMENT_TAG = "ALLOW_DIRECT_ALIGNMENT"; // In space, should the ship point directly at the destination on navigation started before taking off
+        private const string AUTO_CRUISE_TAG = "AUTO_CRUISE";
         #endregion
 
         // -------------------------------------------------------
         // Avoid touching anything below this. Things will break.
         // -------------------------------------------------------
         private static string CHARGE_TARGET_GROUP_NAME = "Charge Target";
-
-        private static float DISTANCE_CHECK_TOLERANCE = 0.15f; // Script will assume the ship has reached the target position once the distance is lower than this.
-        private static double ROTATION_CHECK_TOLERANCE = 0.015; // Scrip will assume the ship has reached the target rotation once the rotation thresholds are lower than this.
-        private static float COLLISION_CORRECTION_ANGLE = (float)Math.PI / 7.5f;
-        private static float BRAKE_THRUST_TRIGGER_DIFFERENCE = 3.0f; //the threshold on which the ship hard brakes when going too fast
-        //VV If enabled, this will be the ground-to-air elevation at which the nose will point toward the target when leaving the atmosphere
-        private static float ESCAPE_NOSE_UP_ELEVATION = 2000.0f;
-
         private static float HORIZONT_CHECK_ANGLE_LIMIT = (float)Math.PI / 32.0f;
         private static float HORIZONT_CHECK_ANGLE_STEP = (float)Math.PI / 75.0f;
         private static float HORIZONT_MAX_UP_ANGLE = (float)Math.PI;
-        private static float COLLISION_DISABLE_RADIUS_MULTIPLIER = 2.0f;
+        private static float COLLISION_DISABLE_RADIUS_MULTIPLIER = 50.0f;
 
         private static double GYRO_GAIN = 1.0;
         private static double GYRO_MAX_ANGULAR_VELOCITY = Math.PI;
         private static float GUIDANCE_MIN_AIM_DISTANCE = 0.5f;
         private static float DISTANCE_TO_GROUND_IGNORE_PLANET = 1.2f * HORIZONT_CHECK_DISTANCE;
+        private static float MAX_TRUST_UNDERESTIMATE_PERCENTAGE = 0.90f; // ** Calculated in MaxThrust **
         private static int DOCK_ATTEMPTS = 5;
         private static string ADVERT_ID = "SAMv2";
         private static string ADVERT_ID_VER = "SAMv2V";
         private static string STORAGE_VERSION = "deadbeef";
-        
-        private List<IMyTextPanel> lcds = new List<IMyTextPanel>();
-        private IMyTextPanel lcd;
-        private bool lcdfound = false;
-        private static float IDLE_POWER = 0.0000001f;
-        private static double TICK_TIME = 0.166666f;
-        private static double FOLLOWER_DISTANCE_FROM_LEADER = 1.66666f; // Seems to have something to do with how quickly followers react to leader movements
-
-        private IMyBroadcastListener listener;
-        private IMyBroadcastListener cmdListener;
-        private IMyBroadcastListener cmdResListener;
-        private IMyBroadcastListener leaderListener;
-
-        private MyIGCMessage intergridCommunicationData; // Intergrid communication data
-
-        private bool clearStorage = false;
-        private TickRate shipCommand = new TickRate();
         private struct Grid
         {
             public string name;
@@ -219,16 +214,21 @@ namespace IngameScript
             public double radius;
         }
 
-        // The constructor, called only once every session and
-        // always before any other method is called. Use it to
-        // initialize your script. 
-        //     
-        // The constructor is optional and can be removed if not
-        // needed.
-        // 
-        // It's recommended to set Runtime.UpdateFrequency 
-        // here, which will allow your script to run itself without a 
-        // timer block.
+        private List<IMyTextPanel> lcds = new List<IMyTextPanel>();
+        private IMyTextPanel lcd;
+        private bool lcdfound = false;
+        private TickRate shipCommand = new TickRate();
+        private static float IDLE_POWER = 0.0000001f;
+        private static double TICK_TIME = 0.166666f;
+        private static double FOLLOWER_DISTANCE_FROM_LEADER = 1.66666f; // Seems to have something to do with how quickly followers react to leader movements
+
+        private IMyBroadcastListener listener;
+        private IMyBroadcastListener cmdListener;
+        private IMyBroadcastListener cmdResListener;
+        private IMyBroadcastListener leaderListener;
+        private MyIGCMessage intergridCommunicationData; // Intergrid communication data
+
+        private bool clearStorage = false;
         private Program()
         {
             try
@@ -268,12 +268,6 @@ namespace IngameScript
             return false;
         }
 
-        // Called when the program needs to save its state. Use
-        // this method to save your state to the Storage field
-        // or some other means. 
-        // 
-        // This method is optional and can be removed if not
-        // needed.
         private void Save()
         {
             try
@@ -336,14 +330,54 @@ namespace IngameScript
                         switch (arg1.ToUpper())
                         {
                             case "PANDO":
+                            case "stance":
                             case "STANCE":
                                 Pannel.ScreenHandle(Pannel.ScreenAction.AddPosAndOrientation, String.Join(" ", parts.Skip(2).ToArray()));
                                 break;
+                            case "":
+                                Pannel.ScreenHandle(Pannel.ScreenAction.Add);
+                                break;
                             case "ORBIT":
                                 Pannel.ScreenHandle(Pannel.ScreenAction.AddOrbit);
-                                break; 
+                                break;
+                            case "dock":
+                            case "DOCK":
+                                Dock otherDock;
+                                if (parts.Length > 2)
+                                {
+                                    otherDock = DockSystem.GetDockFromConnected(string.Join(" ", parts.Skip(2).ToArray()));
+                                }
+                                else
+                                {
+                                    otherDock = DockSystem.GetDockFromConnected();
+                                }
+                                if (otherDock == null)
+                                {
+                                    Logger.Err("Unable to add, ship not connected.");
+                                    break;
+                                }
+                                otherDock.Touch();
+                                DockData.currentDockCount++;
+                                DockData.docks.Add(otherDock);
+                                DockData.docks.Sort();
+                                DockData.selectedDocks.Add(otherDock);
+                                DockData.BalanceDisplays();
+                                break;
                             default:
-                                Pannel.ScreenHandle(Pannel.ScreenAction.Add, String.Join(" ", parts.Skip(1).ToArray()));
+                                if (String.Join(" ", arg1).StartsWith("GPS")) //GPS:Au/Co/Fe Vain:46333.05:31840.77:29921.83:
+                                {
+                                    string GPS = command.Trim().Substring(4).Trim();
+                                    //string GPS = String.Join(" ", arg1);
+                                    //string[] GPSsegments = GPS.Split(':');
+                                    Dock dock = Waypoint.DockFromGPS(GPS);
+                                    if (dock != null)
+                                    {
+                                        DockData.currentDockCount++;
+                                        DockData.docks.Add(dock);
+                                        DockData.docks.Sort();
+                                        DockData.BalanceDisplays();
+                                    }
+                                }
                                 break;
                         }
                         break;
@@ -359,11 +393,13 @@ namespace IngameScript
                     case "START":
                         switch (arg1.ToUpper())
                         {
+                            case "prev":
                             case "PREV":
                                 Signal.Clear();
                                 DockData.NAVScreenHandle(Pannel.ScreenAction.Prev);
                                 Pilot.Start();
                                 break;
+                            case "next":
                             case "NEXT":
                                 Signal.Clear();
                                 DockData.NAVScreenHandle(Pannel.ScreenAction.Next);
@@ -379,7 +415,6 @@ namespace IngameScript
                                 break;
                         }
                         break;
-
                     case "GO":
                         switch (arg1.ToUpper())
                         {
@@ -416,6 +451,13 @@ namespace IngameScript
                     case "TEST":
                         Signal.Send(Signal.SignalType.DOCK);
                         break;
+                    case "UNDOCK":
+                        Signal.Clear();
+                        Pilot.StartUndock();
+                        break;
+                    case "SCAN":
+                        ScanGrid();
+                        break;
                     default:
                         Logger.Err("Unknown command ->" + arg0 + "<-");
                         break;
@@ -427,15 +469,6 @@ namespace IngameScript
             }
         }
 
-        // The main entry point of the script, invoked every time
-        // one of the programmable block's Run actions are invoked,
-        // or the script updates itself. The updateSource argument
-        // describes where the update came from. Be aware that the
-        // updateSource is a bitfield  and might contain more than 
-        // one update type.
-        // 
-        // The method itself is required, but the arguments 
-        // can be removed if not needed.
         private void Main(string pbRunArgument, UpdateType updateSource)
         { // Main
             var updateType = updateSource;
@@ -443,10 +476,12 @@ namespace IngameScript
             {
                 MainHelper.TimedRunIf(ref updateSource, UpdateType.Once, this.Once, ref pbRunArgument);
                 MainHelper.TimedRunIf(ref updateSource, UpdateType.Update100, this.Update100, ref pbRunArgument);
+                //MainHelper.TimedRunIf(ref updateSource, UpdateType.Antenna, this.Antenna, ref argument);
                 MainHelper.TimedRunIf(ref updateSource, UpdateType.IGC, this.UpdateInterGridCommunication, ref pbRunArgument);
                 MainHelper.TimedRunIf(ref updateSource, UpdateType.Update10, this.Update10, ref pbRunArgument);
                 MainHelper.TimedRunDefault(ref updateSource, this.HandleCommand, ref pbRunArgument);
-                shipCommand.UpdateTickRateValues((float)Runtime.CurrentInstructionCount / (float)Runtime.MaxInstructionCount, updateType);
+                shipCommand.UpdateTickRateValues((float)Runtime.CurrentInstructionCount 
+                    / (float)Runtime.MaxInstructionCount, updateType);
             }
             catch (Exception exception)
             {
@@ -465,10 +500,22 @@ namespace IngameScript
                 Logger.Err("Once ScanGrid exception: " + exception.Message);
             }
         }
-        
+
+        public void Antenna(ref string msg)
+        {
+            try
+            {
+                DockSystem.Listen(msg);
+            }
+            catch (Exception e)
+            {
+                Logger.Err("Update100 Docks.Listen exception: " + e.Message);
+            }
+        }
+
         private void UpdateInterGridCommunication(ref string msg)
         {
-            
+
             if (msg == MAIN_CMD_TAG)
             {
                 while (listener.HasPendingMessage)
@@ -545,7 +592,7 @@ namespace IngameScript
             }
             try
             {
-                Pilot.Tick();
+                Pilot.PilotTick();
             }
             catch (Exception exception)
             {
@@ -672,12 +719,6 @@ namespace IngameScript
                     Logger.Info("Timer triggered due to Docking accomplished");
                     block.StartCountdown();
                 }
-                if (Block.HasProperty(block.EntityId, "UNDOCKED") && Signal.list.ContainsKey(Signal.SignalType.UNDOCK))
-                {
-                    Signal.list[Signal.SignalType.UNDOCK] = 0;
-                    Logger.Info("Timer triggered due to Undocking sequence");
-                    block.StartCountdown();
-                }
                 if (Block.HasProperty(block.EntityId, "NAVIGATED") && Signal.list.ContainsKey(Signal.SignalType.NAVIGATION))
                 {
                     Signal.list[Signal.SignalType.NAVIGATION] = 0;
@@ -689,6 +730,17 @@ namespace IngameScript
                 {
                     Signal.list[Signal.SignalType.START] = 0;
                     Logger.Info("Timer triggered due to Navigation started");
+                    block.StartCountdown();
+                }
+                if (Block.HasProperty(block.EntityId, "UNDOCKED") && Signal.list.ContainsKey(Signal.SignalType.UNDOCK))
+                {
+                    Signal.list[Signal.SignalType.UNDOCK] = 0;
+                    Logger.Info("Timer triggered due to Undocking sequence");
+                    block.StartCountdown();
+                }
+                if (Block.HasProperty(block.EntityId, "APPROACHING") && Signal.list.ContainsKey(Signal.SignalType.APPROACH))
+                {
+                    Logger.Info("Timer started due to approaching destination");
                     block.StartCountdown();
                 }
             }

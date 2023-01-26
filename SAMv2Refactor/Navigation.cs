@@ -46,19 +46,15 @@ namespace IngameScript
                 {
                     case Waypoint.wpType.CONVERGING:
                         if ((waypoints[0].positionAndOrientation.position - Situation.position).Length() 
-                            < APPROACH_DISTANCE)
+                            < COLLISION_DISABLE_RADIUS_MULTIPLIER * Situation.radius)
                         {
-                            waypoints[0].type = Waypoint.wpType.APPROACHING;
-                            waypoints[0].maxSpeed = APPROACHING_SPEED;
-                        }
-                        goto case Waypoint.wpType.APPROACHING;
-                    case Waypoint.wpType.APPROACHING:
-                        if ((waypoints[0].positionAndOrientation.position - Situation.position).Length() < COLLISION_DISABLE_RADIUS_MULTIPLIER * Situation.radius)
-                        {
+                            if (Situation.slowOnApproach)
+                            {
+                                waypoints[0].maxSpeed = TAXIING_SPEED;
+                            }
                             return;
                         }
                         break;
-
                     case Waypoint.wpType.NAVIGATING:
                         break;
                     case Waypoint.wpType.CRUISING:
@@ -108,16 +104,15 @@ namespace IngameScript
                 }
                 newDirection = Vector3D.Transform(horizontDirectionNormal.Value,
                     Quaternion.CreateFromAxisAngle(endTargetRightVector, COLLISION_CORRECTION_ANGLE));
-                newTarget = Situation.position + Math.Min(HORIZONT_CHECK_DISTANCE,
-                    (Situation.position - waypoints.Last().positionAndOrientation.position).Length()) 
-                    * newDirection;
+                newTarget = Situation.position + HORIZONT_CHECK_DISTANCE * newDirection;
                 if (waypoints[0].type == Waypoint.wpType.NAVIGATING)
                 {
                     waypoints[0].positionAndOrientation.position = newTarget;
                 }
                 else
                 { // inserts a waypoint
-                    waypoints.Insert(0, new Waypoint(new PositionAndOrientation(newTarget, Vector3D.Zero, Vector3D.Zero), MAX_SPEED, Waypoint.wpType.NAVIGATING));
+                    waypoints.Insert(0, new Waypoint(new PositionAndOrientation(newTarget,
+                        Vector3D.Zero, Vector3D.Zero), MAX_SPEED, Waypoint.wpType.NAVIGATING));
                 }
             }
 
@@ -229,7 +224,7 @@ namespace IngameScript
             private static void SetCruisePos(Vector3D pos)
             {
                 Waypoint wp = new Waypoint(new PositionAndOrientation(pos, Vector3D.Zero, Vector3D.Zero),
-                    APPROACHING_SPEED, Waypoint.wpType.CRUISING);
+                    CONVERGING_SPEED, Waypoint.wpType.CRUISING);
 
                 switch (waypoints[0].type)
                 {
@@ -271,7 +266,7 @@ namespace IngameScript
                         {
                             if (wp.type == Waypoint.wpType.CONVERGING || wp.type == Waypoint.wpType.NAVIGATING)
                             {
-                                wp.maxSpeed = APPROACHING_SPEED;
+                                wp.maxSpeed = ARRIVAL_SPEED;
                             }
                         }
                     }
@@ -300,10 +295,10 @@ namespace IngameScript
                 else
                 {
                     Vector3D destination = ArrivalWaypoint.positionAndOrientation.position;
-                    if ((destination - Situation.position).Length() <= APPROACH_DISTANCE)
+                    if ((destination - Situation.position).Length() <= ARRIVAL_DISTANCE)
                     {
                         Logger.Info("Slowing due to arriving at destination.");
-                        Signal.Send(Signal.SignalType.NAVIGATION);
+                        Signal.Send(Signal.SignalType.APPROACH);
                         IsClose = true;
                         return true;
                     }
@@ -311,26 +306,21 @@ namespace IngameScript
                 return false;
             }
 
-
-
             public static void NavigationTick()
             {
                 if (waypoints.Count == 0)
                 {
                     return;
                 }
-                Situation.RefreshSituationbParameters();
+                Situation.RefreshSituationParameters();
+                if (!Navigation.Done())
+                {
+                    ProcessCloseness();
+                }
+                ProcessAutoCruise();
                 CheckWaypointPositionCollision();
                 Guidance.Set(waypoints.ElementAt(0));
                 Guidance.GuidanceTick();
-                if (waypoints[0].type == Waypoint.wpType.HOPPING)
-                {
-                    if ((waypoints[0].positionAndOrientation.position - Situation.position).Length() < APPROACH_DISTANCE)
-                    {
-                        waypoints.Clear();
-                        Guidance.Release();
-                    }
-                }
                 if (Guidance.Done())
                 {
                     if (waypoints[0].type == Waypoint.wpType.FOLLOWING)
@@ -351,9 +341,9 @@ namespace IngameScript
                 waypoints.Insert(0, wp);
             }
 
-            public static void AddWaypoint(PositionAndOrientation s, float m, Waypoint.wpType wt)
+            public static void AddWaypoint(PositionAndOrientation pando, float maxSpeed, Waypoint.wpType wt)
             {
-                AddWaypoint(new Waypoint(s, m, wt));
+                AddWaypoint(new Waypoint(pando, maxSpeed, wt));
             }
 
             public static void AddWaypoint(Vector3D pos, Vector3D fwd, Vector3D up, float travelSpeed, Waypoint.wpType wpType)

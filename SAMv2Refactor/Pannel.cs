@@ -24,7 +24,7 @@ namespace IngameScript
     {
         private static class Pannel
         {// Pannels
-            private static List<string> types = new List<string> { "LOG", "NAV", "CONF", "STAT", "DATA" };
+            private static List<string> types = new List<string> { "NAV", "CONF", "LOG", "DATA", "STAT" };
             private static Dictionary<string, string> buffer = new Dictionary<string, string>();
             private static Queue<string> selected = new Queue<string>(new List<string> { "NAV", "CONF" });
             private static string printBuffer, screen;
@@ -69,7 +69,9 @@ namespace IngameScript
                         }
                         catch (Exception exception) { Logger.Err("PrintBuffer NAV exception: " + exception.Message); }
                         break;
-
+                    case "DATA":
+                        printBuffer = Data.str;
+                        break;
                     case "STAT":
                         try
                         {
@@ -78,16 +80,13 @@ namespace IngameScript
                         }
                         catch (Exception exception) { Logger.Err("PrintBuffer STAT exception: " + exception.Message); }
                         break;
-
-                    case "DATA":
-                        printBuffer = Data.str;
-                        break;
                 }
             }
 
             public static void Print()
             {
-                if (GridBlocks.textPanelBlocks.Count() == 0 && GridBlocks.cockpitBlocks.Count() == 0)
+                if (GridBlocks.textPanelBlocks.Count() == 0 &&
+                    GridBlocks.cockpitBlocks.Count() == 0)
                 {
                     return;
                 }
@@ -137,11 +136,11 @@ namespace IngameScript
                             case "CONF":
                                 FillPrintBuffer("CONF");
                                 break;
-                            case "STAT":
-                                FillPrintBuffer("STAT");
-                                break;
                             case "DATA":
                                 FillPrintBuffer("DATA");
+                                break;
+                            case "STAT":
+                                FillPrintBuffer("STAT");
                                 break;
                             default:
                                 FillPrintBuffer(selected.Peek());
@@ -172,9 +171,10 @@ namespace IngameScript
             public enum ScreenAction
             {
                 Prev, Next, Select, Add, Rem, AddPosAndOrientation, AddOrbit
-            }; public static void ScreenHandle(ScreenAction ì)
+            }; 
+            public static void ScreenHandle(ScreenAction sa)
             {
-                ScreenHandle(ì, "");
+                ScreenHandle(sa, "");
             }
 
             public static void ScreenHandle(ScreenAction ì, string í)
