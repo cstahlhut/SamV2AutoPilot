@@ -52,7 +52,7 @@ namespace IngameScript
                     }
                     Serializer.Pack(connectorName);
                     Serializer.Pack(connector.GetPosition());
-                    if (Block.HasProperty(connector.EntityId, REVERSE_CONNECTOR_TAG))
+                    if (Block.HasProperty(connector.EntityId, CONNECTOR_REVERSE_TAG))
                     {
                         Serializer.Pack(connector.WorldMatrix.Backward);
                     }
@@ -163,6 +163,48 @@ namespace IngameScript
                         DockData.docks.Sort();
                     }
                 }
+            }
+
+            public static Dock GetDockFromConnected(string gridname = null)
+            {
+                List<IMyShipConnector> connectors = GridBlocks.shipConnectorBlocks;
+                if (connectors.Count == 0)
+                {
+                    return null;
+                }
+                IMyShipConnector dockedConnector = null;
+                foreach (IMyShipConnector c in connectors)
+                {
+                    if (c.Status == MyShipConnectorStatus.Connected)
+                    {
+                        dockedConnector = c;
+                        break;
+                    }
+                }
+                if (dockedConnector == null)
+                {
+                    return null;
+                }
+
+                IMyShipConnector otherConnector = dockedConnector.OtherConnector;
+                Dock dock = new Dock();
+                dock.blockEntityId = otherConnector.EntityId;
+                dock.blockName = otherConnector.CustomName;
+                dock.cubeSize = otherConnector.CubeGrid.GridSizeEnum;
+                dock.gridEntityId = otherConnector.CubeGrid.EntityId;
+                dock.gridName = otherConnector.CubeGrid.CustomName;
+                if (gridname != null)
+                {
+                    dock.gridName = gridname;
+                }
+
+                dock.posAndOrientation = new PositionAndOrientation(otherConnector.GetPosition(),
+                    otherConnector.WorldMatrix.Forward, otherConnector.WorldMatrix.Up);
+                //dock.stance.forward = ;
+                //dock.stance.up = ;
+                //dock.stance.position = ;
+
+                return dock;
             }
         }
     }
