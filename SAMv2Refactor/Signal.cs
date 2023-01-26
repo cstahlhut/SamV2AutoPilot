@@ -24,7 +24,7 @@ namespace IngameScript
     {
         private static class Signal
         { // Signal
-            public enum SignalType { DOCK, NAVIGATION, START, UNDOCK };
+            public enum SignalType { DOCK, NAVIGATION, START, UNDOCK, APPROACH };
             public static Dictionary<SignalType, int> list = new Dictionary<SignalType, int>();
             private static HashSet<SignalType> lastSignal = new HashSet<SignalType> { };
             private static int SIGNAL_MAX_ATTEMPTS = 10;
