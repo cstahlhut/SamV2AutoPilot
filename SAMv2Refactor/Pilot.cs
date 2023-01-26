@@ -51,6 +51,14 @@ namespace IngameScript
                 {
                     if (listOfDocks.Count != 0 && listOfDocks[0].gridEntityId != 0)
                     {
+                        if (listOfDocks[0].job == Dock.JobType.HOP)
+                        {
+                            listOfDocks.Clear();
+                            Logger.Info("Hop successful!");
+                            Autopilot.PilotDone();
+                            running = false;
+                            return;
+                        }
                         CalculateApproach();
                         listOfDocks.Clear();
                         return;
@@ -138,16 +146,18 @@ namespace IngameScript
 
             private static Vector3D newPos, undockPos;
             private static Dock disconnectDock;
+            private static Waypoint.wpType wpType;
 
             private static void SetEndPosisitionAndOrietation(Dock dock)
             {// Previously called SetStance(Dock dock)
                 //Navigation.ResetArrival();
                 Situation.RefreshSituationParameters();
+                wpType = (dock.job == Dock.JobType.HOP) ? Waypoint.wpType.HOPPING : Waypoint.wpType.CONVERGING;
                 if (dock.blockEntityId == 0)
                 {
 
                     Navigation.AddWaypoint(dock.posAndOrientation, APPROACH_SPEED, Waypoint.wpType.ALIGNING);
-                    Navigation.AddWaypoint(dock.posAndOrientation.position, Vector3D.Zero, Vector3D.Zero, CONVERGING_SPEED, Waypoint.wpType.CONVERGING);
+                    Navigation.AddWaypoint(dock.posAndOrientation.position, Vector3D.Zero, Vector3D.Zero, CONVERGING_SPEED, wpType);
                     newPos = dock.posAndOrientation.position;
                 }
                 else
@@ -160,7 +170,7 @@ namespace IngameScript
                     {
                         newPos = dock.approachPath[0].position + ((APPROACH_DISTANCE + Situation.radius) * dock.approachPath[0].direction);
                     }
-                    Navigation.AddWaypoint(newPos, Vector3D.Zero, Vector3D.Zero, CONVERGING_SPEED, Waypoint.wpType.CONVERGING);
+                    Navigation.AddWaypoint(newPos, Vector3D.Zero, Vector3D.Zero, CONVERGING_SPEED, wpType);
                 }
                 
                 if (Situation.linearVelocity.Length() >= 2.0f)
@@ -283,9 +293,10 @@ namespace IngameScript
                 Stop();
                 Logger.Info(MSG_NAVIGATING_TO + " [" + dockToNavigateTo.gridName + "] " + dockToNavigateTo.blockName);
                 listOfDocks.Add(dockToNavigateTo);
-                Signal.Send(Signal.SignalType.START);
                 SetEndPosisitionAndOrietation(dockToNavigateTo);
                 running = true;
+                Autopilot.Activate(dockToNavigateTo);
+                Signal.Send(Signal.SignalType.START);
             }
 
             public static void Follow()

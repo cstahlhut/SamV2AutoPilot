@@ -501,18 +501,6 @@ namespace IngameScript
             }
         }
 
-        public void Antenna(ref string msg)
-        {
-            try
-            {
-                DockSystem.Listen(msg);
-            }
-            catch (Exception e)
-            {
-                Logger.Err("Update100 Docks.Listen exception: " + e.Message);
-            }
-        }
-
         private void UpdateInterGridCommunication(ref string msg)
         {
 

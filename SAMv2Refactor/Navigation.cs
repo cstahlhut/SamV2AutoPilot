@@ -321,6 +321,15 @@ namespace IngameScript
                 CheckWaypointPositionCollision();
                 Guidance.Set(waypoints.ElementAt(0));
                 Guidance.GuidanceTick();
+                if (waypoints[0].type == Waypoint.wpType.HOPPING)
+                {
+                    if ((waypoints[0].positionAndOrientation.position 
+                            - Situation.position).Length() < APPROACH_DISTANCE)
+                    {
+                        waypoints.Clear();
+                        Guidance.Release();
+                    }
+                }
                 if (Guidance.Done())
                 {
                     if (waypoints[0].type == Waypoint.wpType.FOLLOWING)
