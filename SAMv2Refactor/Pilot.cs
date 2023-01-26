@@ -65,6 +65,7 @@ namespace IngameScript
                     }
                     Logger.Info(MSG_NAVIGATION_SUCCESSFUL);
                     Signal.Send(Signal.SignalType.NAVIGATION);
+                    Autopilot.PilotDone();
                     ConnectorControl.AttemptConnect();
                     running = false;
                     return;
@@ -148,9 +149,9 @@ namespace IngameScript
             private static Dock disconnectDock;
             private static Waypoint.wpType wpType;
 
-            private static void SetEndPosisitionAndOrietation(Dock dock)
+            private static void SetEndPositionAndOrientation(Dock dock)
             {// Previously called SetStance(Dock dock)
-                //Navigation.ResetArrival();
+                Navigation.ResetArrival();
                 Situation.RefreshSituationParameters();
                 wpType = (dock.job == Dock.JobType.HOP) ? Waypoint.wpType.HOPPING : Waypoint.wpType.CONVERGING;
                 if (dock.blockEntityId == 0)
@@ -293,7 +294,7 @@ namespace IngameScript
                 Stop();
                 Logger.Info(MSG_NAVIGATING_TO + " [" + dockToNavigateTo.gridName + "] " + dockToNavigateTo.blockName);
                 listOfDocks.Add(dockToNavigateTo);
-                SetEndPosisitionAndOrietation(dockToNavigateTo);
+                SetEndPositionAndOrientation(dockToNavigateTo);
                 running = true;
                 Autopilot.Activate(dockToNavigateTo);
                 Signal.Send(Signal.SignalType.START);
@@ -346,7 +347,7 @@ namespace IngameScript
                 Logger.Info(MSG_NAVIGATION_TO_WAYPOINT);
                 listOfDocks.Add(dock);
                 Signal.Send(Signal.SignalType.START);
-                SetEndPosisitionAndOrietation(dock);
+                SetEndPositionAndOrientation(dock);
                 /// EXPERIMENTAL CODE End
 
                 ////**************** Remove below if it breaks the script *****************
