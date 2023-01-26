@@ -26,7 +26,7 @@ namespace IngameScript
         {
             public static void Print(long entityId, IMyTextSurface panel)
             {
-                if (Block.HasProperty(entityId, "OVR")) // Allows you to override the font size and style.
+                if (Block.HasProperty(entityId, TEXT_STYLE_OVERRIDE_TAG)) // Allows you to override the font size and style.
                 {
                     return;
                 }

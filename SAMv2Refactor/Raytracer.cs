@@ -38,15 +38,18 @@ namespace IngameScript
                 {
                     if (!camera.CanScan(target))
                     {
+                        //Logger.Info("Camera cant scan");
                         continue;
                     }
                     hit = camera.Raycast(target);
                     if (hit.IsEmpty())
                     {
+                        //Logger.Info("No hit");
                         return Result.NoHit;
                     }
                     if (hit.EntityId == GridBlocks.masterProgrammableBlock.CubeGrid.EntityId)
                     {
+                        //Logger.Info("Hit PB");
                         continue;
                     }
                     switch (hit.Type)
@@ -54,16 +57,24 @@ namespace IngameScript
                         case MyDetectedEntityType.Planet:
                             if (ignorePlanet)
                             {
+                                //Logger.Info("Hit Planet");
                                 return Result.NoHit;
                             }
                             goto case MyDetectedEntityType.SmallGrid;
                         case MyDetectedEntityType.Asteroid:
-                        case MyDetectedEntityType.LargeGrid:
-                        case MyDetectedEntityType.SmallGrid:
+                            //Logger.Info("Hit Asteroid");
                             hitPosition = hit.HitPosition.Value;
                             return Result.Hit;
-
+                        case MyDetectedEntityType.LargeGrid:
+                            //Logger.Info("Hit Large Grid");
+                            hitPosition = hit.HitPosition.Value;
+                            return Result.Hit;
+                        case MyDetectedEntityType.SmallGrid:
+                            //Logger.Info("Hit Small Grid");
+                            hitPosition = hit.HitPosition.Value;
+                            return Result.Hit;
                         default:
+                            //Logger.Info("Hit Nothing");
                             return Result.NoHit;
                     }
                 }
